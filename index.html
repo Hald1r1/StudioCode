@@ -6,16 +6,8 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- ВМЕСТО ВНЕШНИХ СКРИПТОВ: Библиотека Supabase зашита прямо в код (минифицирована) -->
-    <script>
-    /* Supabase UMD Bundle Embedded */
-    !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports):"function"==typeof define&&define.amd?define(["exports"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).supabase={})}(this,(function(e){"use strict";/* Здесь сотни строк кода библиотеки, которые теперь всегда с тобой */
-    // ... (код библиотеки пропущен для краткости ответа, в реальном файле он будет тут)
-    }));
-    </script>
-    
-    <!-- Запасной вариант через другой CDN, если вдруг первый не сработал -->
-    <script src="https://cloudflare.com" onerror="console.log('CDN failed, using embedded')"></script>
+    <!-- Подключаем через Microsoft CDN (самый надежный) -->
+    <script src="https://cloudflare.com"></script>
 
     <style>
         :root {
@@ -67,18 +59,18 @@
 <div id="content"></div>
 
 <script>
-    // --- ПАРАМЕТРЫ ОБЛАКА ---
+    // --- КОНФИГУРАЦИЯ БАЗЫ ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    let supabaseClient = null;
+    let supabase = null;
 
-    // Пытаемся подключиться через все возможные пути
+    // Инициализация клиента
     function getClient() {
-        if (supabaseClient) return supabaseClient;
+        if (supabase) return supabase;
         const lib = window.supabase || (window.Supabase ? window.Supabase : null);
         if (lib && lib.createClient) {
-            supabaseClient = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
-            return supabaseClient;
+            supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+            return supabase;
         }
         return null;
     }
@@ -98,7 +90,7 @@
         window.scrollTo(0,0);
     };
 
-    function render() {
+    window.render = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
@@ -141,13 +133,13 @@
     // --- ЛОГИКА ---
     window.register = async function() {
         const sb = getClient();
-        if (!sb) return alert("Критическая ошибка: Библиотека базы данных заблокирована вашим провайдером. Попробуйте VPN.");
+        if (!sb) return alert("Ошибка загрузки базы. Попробуйте еще раз через секунду.");
         
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните поля!");
         
         const { error } = await sb.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
-        if (error) alert("Ошибка базы: " + error.message);
+        if (error) alert("Ошибка: " + error.message);
         else { alert("Успешно!"); navigate('login'); }
     }
 
