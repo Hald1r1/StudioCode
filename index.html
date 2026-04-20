@@ -6,7 +6,7 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- Подключаем библиотеку базы данных прямо здесь -->
+    <!-- Подключаем библиотеку Supabase в самом начале -->
     <script src="https://jsdelivr.net"></script>
 
     <style>
@@ -77,16 +77,9 @@
     // --- ПАРАМЕТРЫ ОБЛАКА ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    let supabase;
-
-    // Инициализация базы
-    function initSupabase() {
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        } catch (e) { console.error("Ошибка базы:", e); }
-    }
+    
+    // Мгновенная инициализация клиента
+    const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
     // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
@@ -212,17 +205,17 @@
 
     // --- ЛОГИКА ---
     window.register = async function() {
-        if (!supabase) return alert("База данных еще загружается...");
+        if (!supabase) return alert("Ошибка: База данных не подключена. Попробуйте обновить страницу.");
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        if(!f || !l || !e || !p) return alert("Заполните поля!");
+        if(!f || !l || !e || !p) return alert("Заполните все поля!");
         
         const { data, error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
         if (error) alert("Ошибка: " + error.message);
-        else { alert("Успешно!"); navigate('login'); }
+        else { alert("Регистрация успешна!"); navigate('login'); }
     }
 
     window.login = async function() {
-        if (!supabase) return alert("База данных еще загружается...");
+        if (!supabase) return alert("Ошибка: База данных не подключена.");
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         const { data, error } = await supabase.from('profiles').select('*').eq('login', l).single();
         if (data && data.pass === p) { 
@@ -250,8 +243,8 @@
     window.confirmPay = () => { alert("Обработка..."); setTimeout(() => { alert("Оплата подтверждена!"); navigate('profile'); }, 1500); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
     
-    // Запуск приложения
-    window.onload = () => { initSupabase(); render(); };
+    // Мгновенный запуск
+    render();
     window.onpopstate = render;
 </script>
 
