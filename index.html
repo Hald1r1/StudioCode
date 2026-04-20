@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Studio «РЕКОРД» | Pro Edition</title>
+    <title>Code Studio «РЕКОРД» </title>
     <link rel="icon" href="image.png" type="image/png">
 
     <style>
@@ -12,7 +12,7 @@
             --card-bg: rgba(10, 12, 16, 0.98); --transit: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: #ffffff; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: #ffffff; overflow-x: hidden; }
         
         nav { position: fixed; top: 0; width: 100%; background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px); padding: 15px 0; border-bottom: 2px solid var(--neon); z-index: 1000; display: flex; flex-direction: column; align-items: center; }
         .logo { font-size: 24px; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-weight: bold; cursor: pointer; transition: var(--transit); }
@@ -25,7 +25,6 @@
 
         @media (min-width: 768px) { nav { flex-direction: row; justify-content: center; padding: 20px 0; } .logo { position: absolute; left: 40px; } .nav-links { margin-top: 0; gap: 40px; } .nav-auth { position: absolute; right: 40px; margin-top: 0; } }
 
-        /* Резкая анимация */
         @keyframes pageIn { from { opacity: 0; transform: translateY(8px); filter: blur(2px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
         .animate-page { animation: pageIn 0.4s ease-out forwards; display: flex; flex-direction: column; align-items: center; width: 100%; }
 
@@ -74,7 +73,8 @@
 <div id="content"></div>
 
 <script>
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwMZDSyYmxEgr8avvxu6FNZzxUULqcX-ZhHcbFTp_LnlpuGJApFuLessp-CwhMnZluHsQ/exec';
+    // --- ВСТАВЬ СЮДА СВОЮ ССЫЛКУ ---
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzBQfQM_LucUmVy4dPbbVW7YEsfofu06sBoBV_uxIlIUYDkGphJd0ZnCYLmacbsnqZiow/exec';
 
     function showStatus(text, showLoader = true, showClose = false) {
         document.getElementById('status-overlay').style.display = 'flex';
@@ -83,22 +83,13 @@
         document.getElementById('status-close').style.display = showClose ? 'inline-block' : 'none';
     }
 
-    function hideStatus(delay = 400) {
-        setTimeout(() => { document.getElementById('status-overlay').style.display = 'none'; }, delay);
-    }
+    function hideStatus(delay = 400) { setTimeout(() => { document.getElementById('status-overlay').style.display = 'none'; }, delay); }
 
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
-        if (page === 'home') {
-            const keys = Array.from(url.searchParams.keys());
-            keys.forEach(k => url.searchParams.delete(k));
-        } else {
-            url.searchParams.set('page', page);
-            Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
-        }
-        window.history.pushState({}, '', url);
-        render();
-        window.scrollTo(0,0);
+        if (page === 'home') Array.from(url.searchParams.keys()).forEach(k => url.searchParams.delete(k));
+        else { url.searchParams.set('page', page); Object.keys(params).forEach(key => url.searchParams.set(key, params[key])); }
+        window.history.pushState({}, '', url); render(); window.scrollTo(0,0);
     };
 
     window.openPayment = function(name, price) {
@@ -107,11 +98,7 @@
     };
 
     function render() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const page = urlParams.get('page');
-        const contentDiv = document.getElementById('content');
-        const user = JSON.parse(sessionStorage.getItem('currentUser'));
-        
+        const urlParams = new URLSearchParams(window.location.search), page = urlParams.get('page'), contentDiv = document.getElementById('content'), user = JSON.parse(sessionStorage.getItem('currentUser'));
         const nav = `<nav><div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div><div class="nav-links"><a onclick="navigate('home')">Главная</a><a onclick="navigate('about')">О нас</a><a onclick="navigate('services')">Курсы</a><a onclick="navigate('contacts')">Контакты</a></div><div class="nav-auth">${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}</div></nav>`;
         let pc = "";
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
@@ -126,38 +113,30 @@
                 <button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">ОПЛАТИТЬ</button><button class="btn" style="width:100%; margin-top:10px; border-color:#555; color:#888;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('card-scr').style.display='none'">НАЗАД</button></div>
                 <div id="sbp-scr" style="display:none"><p>ВЫБЕРИТЕ БАНК:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div><button class="btn" style="width:100%; margin-top:30px; border-color:#555; color:#888;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('sbp-scr').style.display='none'">НАЗАД</button></div></div>`);
         }
-        else if (page === 'about') {
-            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br> Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
-        } 
-        else if (page === 'services') {
-            pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
+        else if (page === 'about') { pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br> Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`); } 
+        else if (page === 'services') { pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
                     <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div></div>
                     <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div></div>
                     <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div></div>
-                </div>`);
-        }
-        else if (page === 'contacts') {
-            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" target="_blank" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
-        }
+                </div>`); }
+        else if (page === 'contacts') { pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" target="_blank" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`); }
         else if (page === 'register') {
             pc = wrap(`<div class="form-container" id="reg-box"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="startEmailVerify()">ПОЛУЧИТЬ КОД</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>
-                       <div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; color:#8b949e; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="6-значный код" maxlength="6"><button class="btn" onclick="finishReg()">СОЗДАТЬ АККАУНТ</button></div>`);
+                       <div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; color:#8b949e; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="6-значный код" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')"><button class="btn" onclick="finishReg()">СОЗДАТЬ АККАУНТ</button></div>`);
         } 
         else if (page === 'login') {
-            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль"><div style="text-align:right; margin:-5px 0 15px;"><a onclick="showForgotModal()" style="color:var(--neon); cursor:pointer; font-size:12px; font-weight:bold;">Забыли пароль?</a></div><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрироваться</a></div></div>`);
+            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль">
+                <div style="text-align:right; margin:-5px 0 15px;"><a onclick="showForgotModal()" style="color:var(--neon); cursor:pointer; font-size:12px; font-weight:bold;">Забыли пароль?</a></div>
+                <button class="btn" onclick="login()">ВОЙТИ</button>
+                <div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрироваться</a></div></div>`);
         }
-        else if (page === 'profile') {
-            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p>Email: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
-        }
-        else if (page === 'choice') {
-            pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
-        }
-        else {
-            pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="${user ? 'navigate(\'profile\')' : 'navigate(\'choice\')'}">${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВХОД В СИСТЕМУ'}</button></div>`);
-        }
+        else if (page === 'profile') { pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p>Email: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`); }
+        else if (page === 'choice') { pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`); }
+        else { pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="${user ? 'navigate(\'profile\')' : 'navigate(\'choice\')'}">${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВХОД В СИСТЕМУ'}</button></div>`); }
         contentDiv.innerHTML = nav + pc;
     }
 
+    // --- ЛОГИКА ---
     window.processPayment = function() {
         const num = document.getElementById('card_number').value, date = document.getElementById('card_date').value, cvc = document.getElementById('card_cvc').value;
         if (num.length < 19 || date.length < 7 || cvc.length < 3) return showStatus("КОРРЕКТНО ЗАПОЛНИТЕ ДАННЫЕ!", false, true);
@@ -170,19 +149,17 @@
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
         window.regData = {f, l, e, p}; window.generatedCode = Math.floor(100000 + Math.random() * 900000);
         showStatus("ОТПРАВЛЯЕМ КОД...");
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?method=sendCode&ema=${encodeURIComponent(e)}&code=${window.generatedCode}&callback=codeSentOk`;
+        window.vTimer = setTimeout(() => { hideStatus(0); showStatus("СЕРВЕР НЕ ОТВЕЧАЕТ. ПРОВЕРЬТЕ ПРАВА СКРИПТА!", false, true); }, 12000);
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?method=sendCode&ema=${encodeURIComponent(e)}&code=${window.generatedCode}&callback=codeSentOk`;
         document.body.appendChild(s);
     };
 
-    window.codeSentOk = () => { hideStatus(); document.getElementById('reg-box').style.display = 'none'; document.getElementById('verify-box').style.display = 'block'; };
+    window.codeSentOk = (res) => { clearTimeout(window.vTimer); hideStatus(); if(res.status==='error') return showStatus("ОШИБКА: " + res.msg, false, true); document.getElementById('reg-box').style.display = 'none'; document.getElementById('verify-box').style.display = 'block'; };
 
     window.finishReg = function() {
-        const inputCode = document.getElementById('vCode').value;
-        if(inputCode != window.generatedCode) return showStatus("НЕВЕРНЫЙ КОД!", false, true);
+        if(document.getElementById('vCode').value != window.generatedCode) return showStatus("НЕВЕРНЫЙ КОД!", false, true);
         showStatus("РЕГИСТРАЦИЯ...");
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(window.regData.f)}&login=${encodeURIComponent(window.regData.l)}&ema=${encodeURIComponent(window.regData.e)}&pass=${encodeURIComponent(window.regData.p)}&callback=regOk`;
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(window.regData.f)}&login=${encodeURIComponent(window.regData.l)}&ema=${encodeURIComponent(window.regData.e)}&pass=${encodeURIComponent(window.regData.p)}&callback=regOk`;
         document.body.appendChild(s);
     };
 
@@ -191,8 +168,7 @@
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         if(!l || !p) return showStatus("ВВЕДИТЕ ДАННЫЕ!", false, true);
-        showStatus("ПРОВЕРКА...");
-        window.tempL = l; window.tempP = p;
+        showStatus("ПРОВЕРКА..."); window.tempL = l; window.tempP = p;
         const s = document.createElement('script'); s.src = `${SHEET_URL}?callback=logOk`; document.body.appendChild(s);
     };
 
