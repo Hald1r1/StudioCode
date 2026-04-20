@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Studio «РЕКОРД»</title>
+    <title>РЕКОРД v3.0 | Cloud Online</title>
     
-    <!-- Используем максимально стабильные версии для мобильного интернета -->
+    <!-- Подключаем Firebase самым простым способом -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -19,15 +19,20 @@
         .nav-links a:hover { color: var(--neon); transform: scale(1.1); }
         .nav-auth a { text-decoration: none; color: var(--neon); border: 1px solid var(--neon); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: var(--transition); display: inline-block; margin-top: 5px; }
         .nav-auth a:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 15px var(--neon); }
-        @media (min-width: 768px) { nav { flex-direction: row; justify-content: center; padding: 15px 0; } .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; } .nav-links { gap: 30px; } .nav-auth { position: absolute; right: 30px; margin-top: 0; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13, 17, 23, 0.8), rgba(13, 17, 23, 0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; animation: fadeIn 0.6s ease-out; }
+        @media (min-width: 768px) { nav { flex-direction: row; justify-content: center; padding: 15px 0; } .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; } .nav-links { gap: 30px; font-size: 14px; } .nav-auth { position: absolute; right: 30px; margin-top: 0; } }
+        
+        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13, 17, 23, 0.8), rgba(13, 17, 23, 0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         .content-box { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(0, 242, 255, 0.3); width: 100%; max-width: 800px; backdrop-filter: blur(8px); box-sizing: border-box; }
+        h1 { font-size: 26px; margin-bottom: 20px; text-transform: uppercase; color: var(--neon); letter-spacing: 2px; }
+        
         .course-card { background: rgba(22, 27, 34, 0.9); border: 1px solid var(--neon); border-radius: 12px; width: 100%; max-width: 650px; margin-bottom: 25px; padding: 25px; text-align: left; transition: var(--transition); cursor: pointer; }
-        .course-card:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2); }
+        .course-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); border-color: #fff; }
+        .course-info { font-size: 14px; line-height: 1.6; color: #8b949e; margin-top: 10px; }
+
         .btn { background: transparent; color: var(--neon); padding: 12px 30px; border: 2px solid var(--neon); border-radius: 6px; font-weight: bold; transition: var(--transition); cursor: pointer; margin: 10px; font-family: inherit; }
         .btn:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 30px var(--neon); }
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 4px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
         .form-container { background: var(--card-bg); padding: 35px; border-radius: 12px; border: 1px solid var(--neon); width: 100%; max-width: 420px; }
     </style>
 </head>
@@ -44,21 +49,18 @@
         appId: "1:794238287571:web:266a02e9cb1999cc0e5e26"
     };
 
-    let db = null;
+    let db;
 
-    // ФИКС ДЛЯ РОССИИ И МОБИЛЬНОГО ИНТЕРНЕТА
-    function startCloud() {
-        try {
+    // Инициализация базы БЕЗ алертов при загрузке
+    function initApp() {
+        if (typeof firebase !== 'undefined') {
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            // Включаем режим длинных опросов (Long Polling)
+            // Настройка для медленного мобильного интернета
             db.settings({ experimentalForceLongPolling: true });
-            console.log("Cloud Ready");
-        } catch(e) { 
-            setTimeout(startCloud, 1000); 
         }
+        render();
     }
-    startCloud();
 
     window.navigate = function(page) {
         const url = new URL(window.location);
@@ -77,42 +79,49 @@
 
         let pc = "";
         if (page === 'about') pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio — современная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
-        else if (page === 'services') pc = `<div class="sub-page"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Pro</h2><p>6 месяцев | 45 000 ₽</p></div><div class="course-card"><h2>AI Machine Learning</h2><p>9 месяцев | 65 000 ₽</p></div></div>`;
+        else if (page === 'services') pc = `<div class="sub-page"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p></div><div class="course-card"><h2>AI Machine Learning</h2><p><strong>9 месяцев | 65 000 ₽</strong></p></div></div>`;
         else if (page === 'profile') pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${user.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         else if (page === 'login') pc = `<div class="sub-page"><div class="form-container"><h2>ВХОД</h2><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
-        else if (page === 'register') pc = `<div class="sub-page"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
-        else if (page === 'choice') pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
-        else if (page === 'contacts') pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>TG: @HaLdjr</p></div></div>`;
+        else if (page === 'register') pc = `<div class="sub-page"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" id="regBtn" onclick="register()">СОЗДАТЬ</button></div></div>`;
+        else if (page === 'choice') pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
+        else if (page === 'contacts') pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Telegram: @HaLdjr</p></div></div>`;
         else pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         
         contentDiv.innerHTML = nav + pc;
     }
 
     window.register = async function() {
-        if (!db) return alert("Соединение с облаком устанавливается... Попробуйте через 5 секунд.");
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполни поля!");
+        
+        const btn = document.getElementById('regBtn');
+        btn.innerText = "ПОДКЛЮЧЕНИЕ...";
+
         try {
+            if (!db) db = firebase.firestore();
             await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
             alert("Успешно!"); navigate('login');
-        } catch (err) { alert("Ошибка сети. Попробуйте включить/выключить авиарежим или сменить сеть."); }
+        } catch (err) { 
+            btn.innerText = "СОЗДАТЬ";
+            alert("Ошибка сети! Попробуйте сменить интернет или включить VPN."); 
+        }
     }
 
     window.login = async function() {
-        if (!db) return;
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         try {
-            const doc = await db.collection("users").doc(l).get();
-            if (doc.exists && doc.data().pass === p) {
-                sessionStorage.setItem('currentUser', JSON.stringify(doc.data()));
+            const d = await db.collection("users").doc(l).get();
+            if (d.exists && d.data().pass === p) {
+                sessionStorage.setItem('currentUser', JSON.stringify(d.data()));
                 navigate('profile');
-            } else { alert("Неверные данные!"); }
+            } else alert("Неверные данные!");
         } catch (err) { alert("Ошибка входа."); }
     }
 
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
     window.onpopstate = render;
-    render();
+    
+    initApp();
 </script>
 </body>
 </html>
