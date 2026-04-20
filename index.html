@@ -6,8 +6,8 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- Подключаем библиотеку Supabase через надежный CDN -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- ЗАМЕНА: Используем альтернативный CDN, так как прошлый у тебя заблокирован -->
+    <script src="https://unpkg.com"></script>
 
     <style>
         :root {
@@ -74,22 +74,25 @@
 <div id="content"></div>
 
 <script>
-    // --- ПАРАМЕТРЫ ОБЛАКА ---
+    // --- КОНФИГУРАЦИЯ БАЗЫ ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
     let supabase = null;
 
-    // Безопасное создание клиента
+    // Безопасная инициализация: сайт откроется, даже если база не подгрузится
     function getSupabase() {
         if (supabase) return supabase;
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            return supabase;
-        }
+        try {
+            const lib = window.supabase || (window.Supabase ? window.Supabase : null);
+            if (lib && lib.createClient) {
+                supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+                return supabase;
+            }
+        } catch (e) { console.error("База недоступна:", e); }
         return null;
     }
 
-    // --- ДВИЖОК SPA ---
+    // --- НАВИГАЦИЯ ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') {
@@ -130,15 +133,65 @@
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
 
         if (page === 'about') {
-            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>О СТУДИИ</h1>
+                    <p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">
+                        Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>
+                        Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.
+                    </p>
+                </div>`);
         } 
         else if (page === 'services') {
-            pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid"><div class="course-card" onclick="handleBuy('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div></div><div class="course-card" onclick="handleBuy('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div></div><div class="course-card" onclick="handleBuy('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div></div></div>`);
+            pc = wrap(`
+                <h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1>
+                <div class="course-grid">
+                    <div class="course-card" onclick="handleBuy('Python Developer Pro', '45 000')">
+                        <h2>Python Developer Pro</h2>
+                        <div class="price">45 000 ₽ / 6 месяцев</div>
+                        <div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div>
+                    </div>
+                    <div class="course-card" onclick="handleBuy('Neural Networks & AI', '65 000')">
+                        <h2>Neural Networks & AI</h2>
+                        <div class="price">65 000 ₽ / 9 месяцев</div>
+                        <div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div>
+                    </div>
+                    <div class="course-card" onclick="handleBuy('Cyber Security Expert', '80 000')">
+                        <h2>Cyber Security Expert</h2>
+                        <div class="price">80 000 ₽ / 12 месяцев</div>
+                        <div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div>
+                    </div>
+                </div>`);
         }
         else if (page === 'payment') {
             const item = urlParams.get('item');
             const price = urlParams.get('price');
-            pc = wrap(`<div class="content-box" style="max-width: 550px"><h1>ОФОРМЛЕНИЕ</h1><p style="font-size: 18px; margin-bottom: 5px;">Выбранный курс:</p><p style="font-size: 22px; font-weight: bold; color:var(--neon); margin-top: 0;">${item}</p><p style="font-size: 24px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 20px;">К оплате: ${price} ₽</p><div class="pay-methods"><div id="btnCard" class="pay-method-btn active" onclick="switchPay('card')">💳 КАРТА</div><div id="btnSbp" class="pay-method-btn" onclick="switchPay('sbp')">📲 СБП</div></div><div id="formCard" class="pay-form active"><input type="text" placeholder="0000 0000 0000 0000"><div style="display:flex; gap:10px"><input type="text" placeholder="ММ/ГГ"><input type="text" placeholder="CVC"></div><button class="btn" style="width:100%; margin: 20px 0 0" onclick="confirmPay()">ОПЛАТИТЬ</button></div><div id="formSbp" class="pay-form"><input type="text" placeholder="+7 (___) ___-__-__"><button class="btn" style="width:100%; margin: 20px 0 0; border-color:#005bff; color:#005bff" onclick="confirmPay()">В ПРИЛОЖЕНИЕ БАНКА</button></div></div>`);
+            pc = wrap(`
+                <div class="content-box" style="max-width: 550px">
+                    <h1>ОФОРМЛЕНИЕ</h1>
+                    <p style="font-size: 18px; margin-bottom: 5px;">Выбранный курс:</p>
+                    <p style="font-size: 22px; font-weight: bold; color:var(--neon); margin-top: 0;">${item}</p>
+                    <p style="font-size: 24px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 20px;">К оплате: ${price} ₽</p>
+                    
+                    <div class="pay-methods">
+                        <div id="btnCard" class="pay-method-btn active" onclick="switchPay('card')">💳 КАРТА</div>
+                        <div id="btnSbp" class="pay-method-btn" onclick="switchPay('sbp')">📲 СБП</div>
+                    </div>
+
+                    <div id="formCard" class="pay-form active">
+                        <input type="text" placeholder="0000 0000 0000 0000">
+                        <div style="display:flex; gap:10px">
+                            <input type="text" placeholder="ММ/ГГ">
+                            <input type="text" placeholder="CVC">
+                        </div>
+                        <button class="btn" style="width:100%; margin: 20px 0 0" onclick="confirmPay()">ОПЛАТИТЬ</button>
+                    </div>
+
+                    <div id="formSbp" class="pay-form">
+                        <input type="text" placeholder="+7 (___) ___-__-__">
+                        <button class="btn" style="width:100%; margin: 20px 0 0; border-color:#005bff; color:#005bff" onclick="confirmPay()">В ПРИЛОЖЕНИЕ БАНКА</button>
+                    </div>
+                </div>`);
         }
         else if (page === 'profile') {
             pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
@@ -147,7 +200,7 @@
             pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрироваться</a></div></div>`);
         } 
         else if (page === 'register') {
-            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>`);
+            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>`);
         } 
         else if (page === 'choice') {
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
@@ -164,24 +217,26 @@
     // --- ЛОГИКА ---
     window.register = async function() {
         const sb = getSupabase();
-        if (!sb) return alert("База данных еще загружается. Подождите пару секунд.");
+        if (!sb) return alert("Ошибка соединения с базой. Проверьте интернет или VPN.");
         
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
         
         const { error } = await sb.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
-        if (error) alert("Ошибка: " + error.message);
-        else { alert("Успешно!"); navigate('login'); }
+        if (error) alert("Ошибка базы: " + error.message);
+        else { alert("Успешно зарегистрировано!"); navigate('login'); }
     }
 
     window.login = async function() {
         const sb = getSupabase();
-        if (!sb) return alert("База загружается...");
+        if (!sb) return alert("База данных недоступна.");
         
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         const { data } = await sb.from('profiles').select('*').eq('login', l).single();
-        if (data && data.pass === p) { sessionStorage.setItem('currentUser', JSON.stringify(data)); navigate('profile'); }
-        else alert("Неверный логин или пароль!");
+        if (data && data.pass === p) { 
+            sessionStorage.setItem('currentUser', JSON.stringify(data)); 
+            navigate('profile'); 
+        } else alert("Неверный логин или пароль!");
     }
 
     window.handleBuy = (n, p) => sessionStorage.getItem('currentUser') ? navigate('payment', {item: n, price: p}) : navigate('login');
@@ -194,7 +249,7 @@
     window.confirmPay = () => { alert("Оплата подтверждена!"); navigate('profile'); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
 
-    // Запуск сайта
+    // Запуск приложения
     render();
     window.onpopstate = render;
 </script>
