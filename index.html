@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
-    <!-- Подключаем библиотеку Supabase -->
+    
+    <!-- Подключаем библиотеку базы данных прямо здесь -->
     <script src="https://jsdelivr.net"></script>
 
     <style>
@@ -73,10 +74,19 @@
 <div id="content"></div>
 
 <script>
-    // --- ПОДКЛЮЧЕНИЕ ТВОЕГО ОБЛАКА ---
+    // --- ПАРАМЕТРЫ ОБЛАКА ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabase;
+
+    // Инициализация базы
+    function initSupabase() {
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) { console.error("Ошибка базы:", e); }
+    }
 
     // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
@@ -98,6 +108,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
+        if (!contentDiv) return;
         const user = JSON.parse(sessionStorage.getItem('currentUser'));
         
         const nav = `
@@ -182,30 +193,10 @@
             pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
         } 
         else if (page === 'login') {
-            pc = wrap(`
-                <div class="form-container">
-                    <h1>ВХОД</h1>
-                    <input type="text" id="lLog" placeholder="Ваш логин">
-                    <input type="password" id="lPas" placeholder="Пароль">
-                    <button class="btn" onclick="login()">ВОЙТИ</button>
-                    <div class="form-footer">
-                        Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a>
-                    </div>
-                </div>`);
+            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a></div></div>`);
         } 
         else if (page === 'register') {
-            pc = wrap(`
-                <div class="form-container">
-                    <h1>РЕГИСТРАЦИЯ</h1>
-                    <input type="text" id="rFio" placeholder="Полное ФИО">
-                    <input type="text" id="rLog" placeholder="Логин">
-                    <input type="email" id="rEma" placeholder="Email">
-                    <input type="password" id="rPas" placeholder="Пароль">
-                    <button class="btn" onclick="register()">СОЗДАТЬ</button>
-                    <div class="form-footer">
-                        Уже есть аккаунт? <a onclick="navigate('login')">Войти</a>
-                    </div>
-                </div>`);
+            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>`);
         } 
         else if (page === 'choice') {
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
@@ -214,41 +205,34 @@
             pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
         }
         else {
-            pc = wrap(`
-                <div class="content-box">
-                    <h1>CODE STUDIO «РЕКОРД»</h1>
-                    <p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p>
-                    <button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button>
-                </div>`);
+            pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button></div>`);
         }
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ОБЛАЧНОЙ БАЗЫ ---
+    // --- ЛОГИКА ---
     window.register = async function() {
+        if (!supabase) return alert("База данных еще загружается...");
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        if(!f || !l || !e || !p) return alert("Заполните все поля!");
+        if(!f || !l || !e || !p) return alert("Заполните поля!");
         
         const { data, error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
-
         if (error) alert("Ошибка: " + error.message);
-        else { alert("Регистрация успешна! Данные сохранены в облаке."); navigate('login'); }
+        else { alert("Успешно!"); navigate('login'); }
     }
 
     window.login = async function() {
+        if (!supabase) return alert("База данных еще загружается...");
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         const { data, error } = await supabase.from('profiles').select('*').eq('login', l).single();
-
         if (data && data.pass === p) { 
             sessionStorage.setItem('currentUser', JSON.stringify(data)); 
             navigate('profile'); 
-        } else {
-            alert("Неверный логин или пароль!");
-        }
+        } else alert("Неверный логин или пароль!");
     }
 
     window.handleBuy = (name, price) => {
-        if (!sessionStorage.getItem('currentUser')) { alert("Пожалуйста, авторизуйтесь!"); navigate('login'); return; }
+        if (!sessionStorage.getItem('currentUser')) { alert("Нужна авторизация!"); navigate('login'); return; }
         navigate('payment', { item: name, price: price });
     }
 
@@ -265,8 +249,11 @@
 
     window.confirmPay = () => { alert("Обработка..."); setTimeout(() => { alert("Оплата подтверждена!"); navigate('profile'); }, 1500); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
+    
+    // Запуск приложения
+    window.onload = () => { initSupabase(); render(); };
     window.onpopstate = render;
-    render();
 </script>
+
 </body>
 </html>
