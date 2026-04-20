@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
-    <!-- Библиотека базы данных -->
+    <!-- Подключаем библиотеку Supabase -->
     <script src="https://jsdelivr.net"></script>
 
     <style>
@@ -73,11 +73,12 @@
 <div id="content"></div>
 
 <script>
-    // --- ПОДКЛЮЧЕНИЕ ОБЛАКА ---
+    // --- ПОДКЛЮЧЕНИЕ ТВОЕГО ОБЛАКА ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') {
@@ -223,7 +224,7 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ОБЛАКА ---
+    // --- ЛОГИКА ОБЛАЧНОЙ БАЗЫ ---
     window.register = async function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
@@ -231,7 +232,7 @@
         const { data, error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
 
         if (error) alert("Ошибка: " + error.message);
-        else { alert("Регистрация успешна! Данные в облаке."); navigate('login'); }
+        else { alert("Регистрация успешна! Данные сохранены в облаке."); navigate('login'); }
     }
 
     window.login = async function() {
@@ -252,10 +253,14 @@
     }
 
     window.switchPay = (type) => {
-        document.getElementById('formCard').classList.toggle('active', type === 'card');
-        document.getElementById('formSbp').classList.toggle('active', type === 'sbp');
-        document.getElementById('btnCard').classList.toggle('active', type === 'card');
-        document.getElementById('btnSbp').classList.toggle('active', type === 'sbp');
+        const fC = document.getElementById('formCard'), fS = document.getElementById('formSbp');
+        const bC = document.getElementById('btnCard'), bS = document.getElementById('btnSbp');
+        if(fC && fS) {
+            fC.classList.toggle('active', type === 'card');
+            fS.classList.toggle('active', type === 'sbp');
+            bC.classList.toggle('active', type === 'card');
+            bS.classList.toggle('active', type === 'sbp');
+        }
     }
 
     window.confirmPay = () => { alert("Обработка..."); setTimeout(() => { alert("Оплата подтверждена!"); navigate('profile'); }, 1500); }
