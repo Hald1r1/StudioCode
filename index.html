@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «Рекорд»</title>
     
-    <!-- Самое надежное подключение Firebase -->
+    <!-- Подключаем только самое необходимое -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -23,10 +23,8 @@
 
         @media (min-width: 768px) { nav { flex-direction: row; justify-content: center; padding: 15px 0; } .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; } .nav-links { gap: 30px; } .nav-links a { font-size: 14px; } .nav-auth { position: absolute; right: 30px; margin-top: 0; } }
 
-        @keyframes fadeOutLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-50px); filter: blur(5px); } }
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-out { animation: fadeOutLeft 0.5s forwards; }
-        .animate-in { animation: fadeInRight 0.5s forwards; }
+        .animate-in { animation: fadeInRight 0.6s forwards; }
 
         .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13,17,23,0.8), rgba(13,17,23,0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         .content-box { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(0, 242, 255, 0.3); width: 100%; max-width: 800px; backdrop-filter: blur(8px); box-sizing: border-box; }
@@ -58,30 +56,18 @@
 
     let db;
 
-    // Сразу пытаемся запустить рендер
-    function init() {
-        if (typeof firebase !== 'undefined') {
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            render();
-        } else {
-            setTimeout(init, 200); // Если не загрузилось, пробуем еще раз
-        }
-    }
+    // Инициализация базы данных
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    } catch (e) { console.log("База подключается..."); }
 
     function navigate(page) {
-        const content = document.getElementById('content');
-        content.classList.add('animate-out');
-        setTimeout(() => {
-            const url = new URL(window.location);
-            if (page === 'home') url.searchParams.delete('page');
-            else url.searchParams.set('page', page);
-            window.history.pushState({}, '', url);
-            content.classList.remove('animate-out');
-            render();
-            content.classList.add('animate-in');
-            setTimeout(() => content.classList.remove('animate-in'), 600);
-        }, 500);
+        const url = new URL(window.location);
+        if (page === 'home') url.searchParams.delete('page');
+        else url.searchParams.set('page', page);
+        window.history.pushState({}, '', url);
+        render();
     }
 
     function render() {
@@ -94,39 +80,27 @@
 
         let pc = "";
         if (page === 'about') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — это цифровая лаборатория будущего. Мы готовим элиту IT-индустрии.</p></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — это современная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
         } else if (page === 'services') {
-            pc = `<div class="sub-page"><h1>КУРСЫ</h1>
-                <div class="course-card" onclick="alert('Система оплаты в разработке')">
-                    <h2>Python Developer</h2>
-                    <p><strong>6 месяцев | 45 000 ₽</strong></p>
-                    <div class="course-info">Освоение синтаксиса, бэкенд на Django и FastAPI. Работа с базами данных PostgreSQL.</div>
-                </div>
-                <div class="course-card" onclick="alert('Система оплаты в разработке')">
-                    <h2>AI & Neural Networks</h2>
-                    <p><strong>9 месяцев | 65 000 ₽</strong></p>
-                    <div class="course-info">Глубокое погружение в Machine Learning. Обучение моделей на PyTorch и NLP.</div>
-                </div>
-                <div class="course-card" onclick="alert('Система оплаты в разработке')">
-                    <h2>Cyber Security Pro</h2>
-                    <p><strong>1 год | 80 000 ₽</strong></p>
-                    <div class="course-info">Станьте экспертом по защите данных. Этичный хакинг и пентестинг.</div>
-                </div></div>`;
+            pc = `<div class="sub-page animate-in"><h1>КУРСЫ</h1>
+                <div class="course-card"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p><div class="course-info">Backend разработка, Django и FastAPI.</div></div>
+                <div class="course-card"><h2>AI & Neural Networks</h2><p><strong>9 месяцев | 65 000 ₽</strong></p><div class="course-info">Deep Learning, PyTorch и NLP.</div></div>
+                <div class="course-card"><h2>Cyber Security Pro</h2><p><strong>1 год | 80 000 ₽</strong></p><div class="course-info">Этичный хакинг и защита систем.</div></div></div>`;
         } else if (page === 'profile') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Добро пожаловать, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         } else if (page === 'login') {
-            pc = `<div class="sub-page"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logLogin" placeholder="Логин"><input type="password" id="logPass" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logLogin" placeholder="Логин"><input type="password" id="logPass" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
         } else if (page === 'register') {
-            pc = `<div class="sub-page"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2>
+            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2>
                 <input type="text" id="regFio" placeholder="ФИО"><input type="text" id="regLogin" placeholder="Логин">
                 <input type="email" id="regEmail" placeholder="Email"><input type="password" id="regPass" placeholder="Пароль">
                 <button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
         } else if (page === 'choice') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
         } else if (page === 'contacts') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
         } else {
-            pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
+            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         }
         contentDiv.innerHTML = navHtml + pc;
     }
@@ -136,7 +110,7 @@
         const l = document.getElementById('regLogin').value;
         const e = document.getElementById('regEmail').value;
         const p = document.getElementById('regPass').value;
-        if(!f || !l || !e || !p || !db) return alert("Подождите загрузки...");
+        if(!db) return alert("База данных подключается, подождите 2 секунды...");
         try {
             await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
             alert("Регистрация успешна!");
@@ -159,7 +133,8 @@
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
     window.onpopstate = render;
     
-    init(); // Запуск системы
+    // Запускаем отрисовку сразу, не дожидаясь базы
+    render();
 </script>
 </body>
 </html>
