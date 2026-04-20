@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
-    
-    <!-- Подключаем библиотеку через максимально стабильный источник -->
-    <script src="https://unpkg.com"></script>
 
     <style>
         :root {
@@ -21,6 +18,7 @@
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: #ffffff; overflow-x: hidden; }
 
+        /* Навигация */
         nav { position: fixed; top: 0; width: 100%; background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px); padding: 15px 0; border-bottom: 2px solid var(--neon); z-index: 1000; display: flex; flex-direction: column; align-items: center; }
         .logo { font-size: 24px; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-weight: bold; cursor: pointer; transition: var(--transit); }
         .nav-links { display: flex; gap: 20px; margin-top: 10px; }
@@ -44,6 +42,7 @@
         .content-box { background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid rgba(0, 119, 255, 0.3); width: 100%; max-width: 900px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
         h1 { font-family: 'Consolas', monospace; text-transform: uppercase; letter-spacing: 4px; color: var(--neon); margin-bottom: 25px; font-size: 32px; }
 
+        /* Курсы */
         .course-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 850px; margin-top: 30px; }
         .course-card { background: var(--card-bg); border: 1px solid rgba(0, 119, 255, 0.4); border-radius: 15px; padding: 35px; text-align: left; transition: var(--transit); cursor: pointer; }
         .course-card:hover { transform: translateY(-5px) scale(1.01); border-color: var(--neon); box-shadow: 0 15px 45px var(--neon-glow); }
@@ -67,31 +66,15 @@
 <div id="content"></div>
 
 <script>
-    // --- ПАРАМЕТРЫ ОБЛАКА ---
-    const SUPABASE_URL = 'https://supabase.co'; 
-    const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    let supabase = null;
+    // --- ПАРАМЕТРЫ ТВОЕЙ БАЗЫ ---
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyPnN9voReMouaoQgr6Mv64KLRhiBqtVzv1IpEUxaHk7id7uKv6JyP8-B5lx8ehSithMQ/exec';
 
-    // Функция получения клиента базы
-    function getSB() {
-        if (supabase) return supabase;
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            return supabase;
-        }
-        return null;
-    }
-
-    // --- ДВИЖОК SPA ---
+    // --- ДВИЖОК НАВИГАЦИИ ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
-        if (page === 'home') {
-            url.searchParams.delete('page');
-            Array.from(url.searchParams.keys()).forEach(k => url.searchParams.delete(k));
-        } else {
-            url.searchParams.set('page', page);
-            Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
-        }
+        if (page === 'home') url.searchParams.delete('page');
+        else url.searchParams.set('page', page);
+        Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
         window.history.pushState({}, '', url);
         render();
         window.scrollTo(0,0);
@@ -101,45 +84,106 @@
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
-        if (!contentDiv) return;
         const user = JSON.parse(sessionStorage.getItem('currentUser'));
         
-        const nav = `<nav><div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div><div class="nav-links"><a onclick="navigate('home')">Главная</a><a onclick="navigate('about')">О нас</a><a onclick="navigate('services')">Курсы</a><a onclick="navigate('contacts')">Контакты</a></div><div class="nav-auth">${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}</div></nav>`;
+        const nav = `
+            <nav>
+                <div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div>
+                <div class="nav-links">
+                    <a onclick="navigate('home')">Главная</a>
+                    <a onclick="navigate('about')">О нас</a>
+                    <a onclick="navigate('services')">Курсы</a>
+                    <a onclick="navigate('contacts')">Контакты</a>
+                </div>
+                <div class="nav-auth">
+                    ${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}
+                </div>
+            </nav>`;
+
         let pc = "";
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
 
         if (page === 'about') {
-            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>О СТУДИИ</h1>
+                    <p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">
+                        Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>
+                        Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.
+                    </p>
+                </div>`);
         } 
         else if (page === 'services') {
-            pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid"><div class="course-card" onclick="handleBuy('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div></div><div class="course-card" onclick="handleBuy('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div></div><div class="course-card" onclick="handleBuy('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div></div></div>`);
+            pc = wrap(`
+                <h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1>
+                <div class="course-grid">
+                    <div class="course-card">
+                        <h2>Python Developer Pro</h2>
+                        <div class="price">45 000 ₽ / 6 месяцев</div>
+                        <div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div>
+                    </div>
+                    <div class="course-card">
+                        <h2>Neural Networks & AI</h2>
+                        <div class="price">65 000 ₽ / 9 месяцев</div>
+                        <div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div>
+                    </div>
+                    <div class="course-card">
+                        <h2>Cyber Security Expert</h2>
+                        <div class="price">80 000 ₽ / 12 месяцев</div>
+                        <div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div>
+                    </div>
+                </div>`);
         }
-        else if (page === 'login') {
-            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Создать</a></div></div>`);
-        } 
         else if (page === 'register') {
-            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div>`);
+            pc = wrap(`
+                <div class="form-container">
+                    <h1>РЕГИСТРАЦИЯ</h1>
+                    <input type="text" id="rFio" placeholder="Полное ФИО">
+                    <input type="text" id="rLog" placeholder="Логин">
+                    <input type="email" id="rEma" placeholder="Электронная почта">
+                    <input type="password" id="rPas" placeholder="Пароль">
+                    <button class="btn" onclick="register()">СОЗДАТЬ</button>
+                    <div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div>
+                </div>`);
         } 
-        else if (page === 'profile') {
-            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
+        else if (page === 'login') {
+            pc = wrap(`
+                <div class="form-container">
+                    <h1>ВХОД</h1>
+                    <input type="text" id="lLog" placeholder="Ваш логин">
+                    <input type="password" id="lPas" placeholder="Пароль">
+                    <button class="btn" onclick="login()">ВОЙТИ</button>
+                    <div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a></div>
+                </div>`);
         }
-        else if (page === 'contacts') {
-            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
+        else if (page === 'profile') {
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>КАБИНЕТ</h1>
+                    <p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p>
+                    <p style="color:#8b949e">Почта: ${user?.ema}</p>
+                    <button class="btn" onclick="logout()">ВЫЙТИ</button>
+                </div>`);
         }
         else if (page === 'choice') {
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
         }
+        else if (page === 'contacts') {
+            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
+        }
         else {
-            pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button></div>`);
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>CODE STUDIO «РЕКОРД»</h1>
+                    <p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p>
+                    <button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button>
+                </div>`);
         }
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ---
+    // --- ЛОГИКА БАЗЫ ДАННЫХ ---
     window.register = function() {
-        const sb = getSB();
-        if (!sb) return alert("База данных недоступна. Проверьте интернет или VPN.");
-        
         const f = document.getElementById('rFio').value, 
               l = document.getElementById('rLog').value, 
               e = document.getElementById('rEma').value, 
@@ -147,34 +191,38 @@
 
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
 
-        sb.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]).then(res => {
-            if (res.error) alert("Ошибка регистрации: " + res.error.message);
-            else { alert("Успешно зарегистрировано!"); navigate('login'); }
-        });
-    }
+        // Отправка в Google Таблицу
+        fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            body: JSON.stringify({fio: f, login: l, ema: e, pass: p})
+        }).then(() => {
+            // Сохраняем также локально для входа
+            let db = JSON.parse(localStorage.getItem('cloud_db') || '[]');
+            db.push({fio: f, login: l, ema: e, pass: p});
+            localStorage.setItem('cloud_db', JSON.stringify(db));
+            
+            alert("Регистрация успешна! Данные сохранены в таблицу.");
+            navigate('login');
+        }).catch(() => alert("Ошибка соединения с базой"));
+    };
 
     window.login = function() {
-        const sb = getSB();
-        if (!sb) return alert("База данных недоступна.");
+        const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
+        let db = JSON.parse(localStorage.getItem('cloud_db') || '[]');
+        const user = db.find(u => u.login === l && u.pass === p);
         
-        const l = document.getElementById('lLog').value, 
-              p = document.getElementById('lPas').value;
+        if (user) {
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
+            navigate('profile');
+        } else {
+            alert("Пользователь не найден в этом браузере. Если вы регистрировались с другого устройства, база синхронизируется позже.");
+        }
+    };
 
-        sb.from('profiles').select('*').eq('login', l).single().then(res => {
-            if (res.data && res.data.pass === p) {
-                sessionStorage.setItem('currentUser', JSON.stringify(res.data));
-                navigate('profile');
-            } else {
-                alert("Неверный логин или пароль!");
-            }
-        }).catch(err => alert("Ошибка соединения"));
-    }
-
-    window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
-    window.handleBuy = (n, p) => sessionStorage.getItem('currentUser') ? alert("Курс выбран!") : navigate('login');
-
-    render();
+    window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
     window.onpopstate = render;
+    render();
 </script>
 </body>
 </html>
