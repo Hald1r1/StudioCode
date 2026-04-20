@@ -62,8 +62,8 @@
 
         /* Уведомления */
         #status-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; justify-content: center; align-items: center; }
-        .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 60px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); }
-        #status-text { font-family: 'Consolas', monospace; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+        .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 50px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); max-width: 90%; }
+        #status-text { font-family: 'Consolas', monospace; font-size: 20px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #fff; line-height: 1.4; }
         .loader { margin-top: 25px; width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -79,7 +79,7 @@
     <div class="status-card">
         <div id="status-text"></div>
         <div id="status-loader" class="loader"></div>
-        <button id="status-close" class="btn" style="display:none; margin-top:30px; padding: 10px 25px; font-size: 14px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button>
+        <button id="status-close" class="btn" style="display:none; margin-top:25px; padding: 10px 30px; font-size: 13px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button>
     </div>
 </div>
 
@@ -144,7 +144,6 @@
                     </div>
                     <div id="card-scr" style="display:none">
                         <p style="margin-bottom:15px">ДАННЫЕ КАРТЫ:</p>
-                        <!-- МАСКА НОМЕРА КАРТЫ -->
                         <input type="text" id="card_number" placeholder="Номер карты" maxlength="19" oninput="this.value = this.value.replace(/\\D/g,'').replace(/(.{4})/g, '$1 ').trim()">
                         <div style="display:flex; gap:10px">
                             <input type="text" id="card_date" placeholder="ММ / ГГ" style="flex:1" maxlength="7" oninput="this.value = this.value.replace(/\\D/g,'').replace(/^(\\d{2})(\\d)/, '$1 / $2').substring(0, 7)">
@@ -194,16 +193,15 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ВАЛИДАЦИЯ ОПЛАТЫ ---
+    // --- ЛОГИКА ОПЛАТЫ ---
     window.processPayment = function() {
         const num = document.getElementById('card_number').value;
         const date = document.getElementById('card_date').value;
         const cvc = document.getElementById('card_cvc').value;
 
         if (num.length < 19 || date.length < 7 || cvc.length < 3) {
-            return alert("Пожалуйста, корректно заполните все данные карты!");
+            return showStatus("ПОЖАЛУЙСТА, КОРРЕКТНО ЗАПОЛНИТЕ ВСЕ ДАННЫЕ КАРТЫ!", false, true);
         }
-
         showStatus("ОБРАБОТКА ДАННЫХ...");
         setTimeout(() => {
             showStatus("УСПЕШНО ОПЛАЧЕНО!", false);
@@ -213,9 +211,10 @@
 
     window.showForgotModal = function() { showStatus("ДЛЯ СБРОСА ПАРОЛЯ СВЯЖИТЕСЬ С АДМИНИСТРАТОРОМ В TELEGRAM: @HaLdjr", false, true); };
 
+    // --- ЛОГИКА БАЗЫ ---
     window.register = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        if(!f || !l || !e || !p) return alert("Заполните все поля!");
+        if(!f || !l || !e || !p) return showStatus("ПОЖАЛУЙСТА, ЗАПОЛНИТЕ ВСЕ ПОЛЯ РЕГИСТРАЦИИ!", false, true);
         showStatus("РЕГИСТРАЦИЯ...");
         const s = document.createElement('script');
         s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(f)}&login=${encodeURIComponent(l)}&ema=${encodeURIComponent(e)}&pass=${encodeURIComponent(p)}&callback=regOk`;
@@ -226,7 +225,7 @@
 
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
-        if(!l || !p) return alert("Введите данные!");
+        if(!l || !p) return showStatus("ВВЕДИТЕ ВАШ ЛОГИН И ПАРОЛЬ!", false, true);
         showStatus("ПРОВЕРКА ДАННЫХ...");
         window.tempL = l; window.tempP = p;
         const s = document.createElement('script');
@@ -237,7 +236,7 @@
     window.logOk = (users) => {
         const u = users.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP);
         if(u) { showStatus("УСПЕШНЫЙ ВХОД!", false); sessionStorage.setItem('currentUser', JSON.stringify(u)); setTimeout(() => { hideStatus(); navigate('profile'); }, 1500); }
-        else { hideStatus(0); alert("Ошибка: Данные неверны!"); }
+        else { showStatus("ОШИБКА: ДАННЫЕ НЕВЕРНЫ ИЛИ АККАУНТ УДАЛЕН!", false, true); }
     };
 
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
