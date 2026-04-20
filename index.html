@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «Рекорд»</title>
-    
-    <!-- Подключаем только самое необходимое -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-
     <style>
         :root { --neon: #00f2ff; --bg: #0d1117; --card-bg: rgba(22, 27, 34, 0.85); --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Consolas', 'Monaco', monospace; background-color: var(--bg); color: #e6edf3; overflow-x: hidden; }
@@ -44,7 +39,11 @@
 
 <div id="content"></div>
 
-<script>
+<script type="module">
+    // ПОДКЛЮЧЕНИЕ ЧЕРЕЗ МОДУЛИ (самое надежное)
+    import { initializeApp } from "https://gstatic.com";
+    import { getFirestore, doc, setDoc, getDoc, collection } from "https://gstatic.com";
+
     const firebaseConfig = {
         apiKey: "AIzaSyBYCGK00rBT6tfK0QXpFnFijP_23TfmJi0",
         authDomain: "://firebaseapp.com",
@@ -54,23 +53,18 @@
         appId: "1:794238287571:web:266a02e9cb1999cc0e5e26"
     };
 
-    let db;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // Инициализация базы данных
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-    } catch (e) { console.log("База подключается..."); }
-
-    function navigate(page) {
+    window.navigate = function(page) {
         const url = new URL(window.location);
         if (page === 'home') url.searchParams.delete('page');
         else url.searchParams.set('page', page);
         window.history.pushState({}, '', url);
         render();
-    }
+    };
 
-    function render() {
+    window.render = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
@@ -79,29 +73,14 @@
         const navHtml = `<nav><div class="logo">🖥️ РЕКОРД</div><div class="nav-links"><a onclick="navigate('home')">Главная</a><a onclick="navigate('about')">О нас</a><a onclick="navigate('services')">Курсы</a><a onclick="navigate('contacts')">Контакты</a></div><div class="nav-auth">${currentUser ? `<a onclick="navigate('profile')">Профиль</a>` : `<a onclick="navigate('choice')">Войти</a>`}</div></nav>`;
 
         let pc = "";
-        if (page === 'about') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — это современная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
-        } else if (page === 'services') {
-            pc = `<div class="sub-page animate-in"><h1>КУРСЫ</h1>
-                <div class="course-card"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p><div class="course-info">Backend разработка, Django и FastAPI.</div></div>
-                <div class="course-card"><h2>AI & Neural Networks</h2><p><strong>9 месяцев | 65 000 ₽</strong></p><div class="course-info">Deep Learning, PyTorch и NLP.</div></div>
-                <div class="course-card"><h2>Cyber Security Pro</h2><p><strong>1 год | 80 000 ₽</strong></p><div class="course-info">Этичный хакинг и защита систем.</div></div></div>`;
-        } else if (page === 'profile') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
-        } else if (page === 'login') {
-            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logLogin" placeholder="Логин"><input type="password" id="logPass" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
-        } else if (page === 'register') {
-            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2>
-                <input type="text" id="regFio" placeholder="ФИО"><input type="text" id="regLogin" placeholder="Логин">
-                <input type="email" id="regEmail" placeholder="Email"><input type="password" id="regPass" placeholder="Пароль">
-                <button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
-        } else if (page === 'choice') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
-        } else if (page === 'contacts') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
-        } else {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
-        }
+        if (page === 'about') { pc = `<div class="sub-page animate-in"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — это современная экосистема обучения.</p></div></div>`; }
+        else if (page === 'services') { pc = `<div class="sub-page animate-in"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p><div class="course-info">Django, FastAPI и PostgreSQL.</div></div><div class="course-card"><h2>AI & Neural Networks</h2><p><strong>9 месяцев | 65 000 ₽</strong></p><div class="course-info">Deep Learning и PyTorch.</div></div></div>`; }
+        else if (page === 'profile') { pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`; }
+        else if (page === 'login') { pc = `<div class="sub-page animate-in"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logLogin" placeholder="Логин"><input type="password" id="logPass" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`; }
+        else if (page === 'register') { pc = `<div class="sub-page animate-in"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="regFio" placeholder="ФИО"><input type="text" id="regLogin" placeholder="Логин"><input type="email" id="regEmail" placeholder="Email"><input type="password" id="regPass" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`; }
+        else if (page === 'choice') { pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`; }
+        else if (page === 'contacts') { pc = `<div class="sub-page animate-in"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`; }
+        else { pc = `<div class="sub-page animate-in"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`; }
         contentDiv.innerHTML = navHtml + pc;
     }
 
@@ -110,9 +89,9 @@
         const l = document.getElementById('regLogin').value;
         const e = document.getElementById('regEmail').value;
         const p = document.getElementById('regPass').value;
-        if(!db) return alert("База данных подключается, подождите 2 секунды...");
+        if(!f || !l || !e || !p) return alert("Заполни все поля!");
         try {
-            await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
+            await setDoc(doc(db, "users", l), { fio: f, login: l, email: e, pass: p });
             alert("Регистрация успешна!");
             navigate('login');
         } catch (err) { alert("Ошибка записи!"); }
@@ -122,9 +101,9 @@
         const l = document.getElementById('logLogin').value;
         const p = document.getElementById('logPass').value;
         try {
-            const doc = await db.collection("users").doc(l).get();
-            if (doc.exists && doc.data().pass === p) {
-                sessionStorage.setItem('currentUser', JSON.stringify(doc.data()));
+            const userDoc = await getDoc(doc(db, "users", l));
+            if (userDoc.exists() && userDoc.data().pass === p) {
+                sessionStorage.setItem('currentUser', JSON.stringify(userDoc.data()));
                 navigate('profile');
             } else { alert("Неверные данные!"); }
         } catch (err) { alert("Ошибка входа."); }
@@ -132,8 +111,6 @@
 
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
     window.onpopstate = render;
-    
-    // Запускаем отрисовку сразу, не дожидаясь базы
     render();
 </script>
 </body>
