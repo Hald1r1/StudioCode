@@ -34,7 +34,7 @@
 
         .course-grid { display: flex; flex-direction: column; gap: 30px; width: 100%; max-width: 900px; margin-top: 30px; }
         .course-card { background: var(--card-bg); border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 20px; padding: 40px; text-align: left; transition: var(--transit); cursor: pointer; }
-        .course-card:hover { border-color: var(--neon); box-shadow: 0 15px 40px var(--neon-glow); transform: translateY(-5px); }
+        .course-card:hover { border-color: var(--neon); box-shadow: 0 15px 40px var(--neon-glow); transform: translateY(-3px); }
         .course-card h3 { color: var(--neon); font-size: 26px; margin: 0 0 10px; }
         .course-card .price { font-weight: bold; color: #ffffff; font-size: 22px; margin-bottom: 20px; display: block; }
         .course-card ul { padding-left: 20px; color: #c9d1d9; line-height: 1.8; }
@@ -68,7 +68,8 @@
         document.getElementById('status-text').innerText = text;
         document.getElementById('status-loader').style.display = showLoader ? 'inline-block' : 'none';
         document.getElementById('status-close').style.display = showClose ? 'inline-block' : 'none';
-        if(showLoader) safetyTimer = setTimeout(() => { showStatus("СЕРВЕР ЗАДЕРЖИВАЕТСЯ. ПОПРОБУЙТЕ СНОВА", false, true); }, 20000);
+        // Увеличил время ожидания до 30 секунд для стабильности
+        if(showLoader) safetyTimer = setTimeout(() => { showStatus("СЕРВЕР ЗАДЕРЖИВАЕТСЯ. ПОПРОБУЙТЕ СНОВА", false, true); }, 30000);
     }
 
     function hideStatus(delay = 400) { clearTimeout(safetyTimer); setTimeout(() => { document.getElementById('status-overlay').style.display = 'none'; }, delay); }
@@ -96,11 +97,14 @@
                 </div>`);
         }
         else if (page === 'contacts') {
-            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 20px; margin-bottom:20px;">На связи 24/7 для вашей поддержки.</p><p>🔹 Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p><p>🔹 Email: support@record.it</p></div>`);
+            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 20px; margin-bottom:20px;">На связи 24/7 для вашей поддержки.</p><p>🔹 Telegram: <a href="https://t.me" style="color:var(--neon);">@HaLdjr</a></p><p>🔹 Email: support@record.it</p></div>`);
+        }
+        else if (page === 'order') {
+            const item = urlParams.get('item'), price = urlParams.get('price');
+            pc = wrap(`<div class="content-box" style="max-width: 650px"><h1>ОФОРМЛЕНИЕ</h1><p style="font-size: 22px; color: var(--neon); font-weight: bold;">${item}</p><p style="font-size: 26px; border-bottom: 1px solid #333; padding-bottom: 20px;">Сумма: ${price} ₽</p><div id="pay-scr"><p>СПОСОБ ОПЛАТЫ:</p><div style="display:flex; gap:20px; margin-top:20px"><button class="btn" style="flex:1" onclick="document.getElementById('card-scr').style.display='block'; document.getElementById('pay-scr').style.display='none'">💳 КАРТА</button><button class="btn" style="flex:1" onclick="document.getElementById('sbp-scr').style.display='block'; document.getElementById('pay-scr').style.display='none'">📲 СБП</button></div></div><div id="card-scr" style="display:none"><p>ДАННЫЕ КАРТЫ:</p><input type="text" id="cn" placeholder="Номер карты" maxlength="19" oninput="this.value=this.value.replace(/\\D/g,'').replace(/(.{4})/g, '$1 ').trim()"><div style="display:flex; gap:10px"><input type="text" id="cd" placeholder="ММ / ГГ" maxlength="7" oninput="this.value=this.value.replace(/\\D/g,'').replace(/^(\\d{2})(\\d)/, '$1 / $2').substring(0, 7)"><input type="text" id="cv" placeholder="CVC" maxlength="3" oninput="this.value=this.value.replace(/\\D/g,'')"></div><button class="btn" style="width:100%; margin-top:20px" onclick="if(cn.value.length<19)return; showStatus('ОБРАБОТКА...'); setTimeout(()=>{showStatus('УСПЕШНО ОПЛАЧЕНО!', false); setTimeout(()=>window.close(), 2000)}, 2000)">ОПЛАТИТЬ</button><button class="btn" style="width:100%; border-color:#444; color:#666;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('card-scr').style.display='none'">НАЗАД</button></div><div id="sbp-scr" style="display:none"><p>ВЫБЕРИТЕ БАНК:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div><button class="btn" style="width:100%; margin-top:30px; border-color:#444; color:#666;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('sbp-scr').style.display='none'">НАЗАД</button></div></div>`);
         }
         else if (page === 'register') {
-            pc = wrap(`<div class="form-container" id="reg-box"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="checkUnique()">ПОЛУЧИТЬ КОД</button></div>
-                       <div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="Код из письма" maxlength="6"><button class="btn" onclick="finishReg()">СОЗДАТЬ АККАУНТ</button></div>`);
+            pc = wrap(`<div class="form-container" id="reg-box"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="checkUnique()">ПОЛУЧИТЬ КОД</button></div><div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="Код" maxlength="6"><button class="btn" onclick="finishReg()">СОЗДАТЬ</button></div>`);
         } 
         else if (page === 'login') {
             pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div>`);
@@ -117,19 +121,18 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ---
+    // --- ЛОГИКА СЕРВЕРА ---
     window.checkUnique = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
-        window.regData = {f, l, e, p}; showStatus("ПРОВЕРКА ДАННЫХ...");
+        window.regData = {f, l, e, p}; showStatus("ПРОВЕРКА...");
         const s = document.createElement('script'); s.src = `${SHEET_URL}?callback=onCheckRes&t=${Date.now()}`; document.body.appendChild(s);
     };
 
     window.onCheckRes = function(users) {
-        if(users.find(u => String(u.ema).toLowerCase() === window.regData.e.toLowerCase())) return showStatus("ЭТА ПОЧТА УЖЕ ЗАНЯТА!", false, true);
-        if(users.find(u => String(u.login).toLowerCase() === window.regData.l.toLowerCase())) return showStatus("ЭТОТ ЛОГИН УЖЕ ЗАНЯТ!", false, true);
-        showStatus("ОТПРАВЛЯЕМ КОД...");
-        window.generatedCode = Math.floor(100000 + Math.random() * 900000);
+        if(users.find(u => String(u.ema).toLowerCase() === window.regData.e.toLowerCase())) return showStatus("ЭТА ПОЧТА ЗАНЯТА!", false, true);
+        if(users.find(u => String(u.login).toLowerCase() === window.regData.l.toLowerCase())) return showStatus("ЛОГИН ЗАНЯТ!", false, true);
+        showStatus("ОТПРАВЛЯЕМ КОД..."); window.generatedCode = Math.floor(100000 + Math.random() * 900000);
         const s = document.createElement('script'); s.src = `${SHEET_URL}?method=sendCode&ema=${encodeURIComponent(window.regData.e)}&code=${window.generatedCode}&callback=onCodeSent&t=${Date.now()}`; document.body.appendChild(s);
     };
 
@@ -153,7 +156,7 @@
     window.onLoginRes = (users) => {
         const u = users.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP);
         if(u) { showStatus("УСПЕШНЫЙ ВХОД!", false); sessionStorage.setItem('currentUser', JSON.stringify(u)); setTimeout(() => { hideStatus(); navigate('profile'); }, 1500); }
-        else { showStatus("ОШИБКА: ДАННЫЕ НЕВЕРНЫ!", false, true); }
+        else { showStatus("ДАННЫЕ НЕВЕРНЫ!", false, true); }
     };
 
     window.openPayment = function(n, p) { window.open(`${window.location.origin}${window.location.pathname}?page=order&item=${encodeURIComponent(n)}&price=${encodeURIComponent(p)}`, '_blank'); };
