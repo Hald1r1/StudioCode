@@ -5,21 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «Рекорд» | Cloud</title>
     
-    <!-- Гарантированные ссылки на библиотеки -->
+    <!-- Используем одну стабильную библиотеку -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
     <style>
-        :root {
-            --neon: #00f2ff;
-            --bg: #0d1117;
-            --card-bg: rgba(22, 27, 34, 0.85);
-            --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
+        :root { --neon: #00f2ff; --bg: #0d1117; --card-bg: rgba(22, 27, 34, 0.85); --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Consolas', 'Monaco', monospace; background-color: var(--bg); color: #e6edf3; overflow-x: hidden; }
-
-        /* Заставка загрузки, пока база не готова */
+        
+        /* Заставка загрузки */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; color: var(--neon); z-index: 2000; font-size: 20px; }
 
         nav { position: fixed; top: 0; width: 100%; background: rgba(22, 27, 34, 0.95); padding: 10px 0; border-bottom: 2px solid var(--neon); z-index: 1000; display: flex; flex-direction: column; align-items: center; }
@@ -27,31 +21,21 @@
         .nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .nav-links a { text-decoration: none; color: #c9d1d9; font-weight: bold; text-transform: uppercase; font-size: 12px; padding: 5px; cursor: pointer; transition: var(--transition); }
         .nav-links a:hover { color: var(--neon); transform: scale(1.1); }
-        
-        .nav-auth { margin-top: 5px; }
-        .nav-auth a { text-decoration: none; color: var(--neon); border: 1px solid var(--neon); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: var(--transition); display: inline-block; }
-        .nav-auth a:hover { background: var(--neon); color: var(--bg); transform: scale(1.15); box-shadow: 0 0 15px var(--neon); }
+        .nav-auth a { text-decoration: none; color: var(--neon); border: 1px solid var(--neon); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: var(--transition); display: inline-block; margin-top: 5px; }
+        .nav-auth a:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 15px var(--neon); }
 
-        @media (min-width: 768px) {
-            nav { flex-direction: row; justify-content: center; padding: 15px 0; }
-            .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; }
-            .nav-links { gap: 30px; }
-            .nav-links a { font-size: 14px; }
-            .nav-auth { position: absolute; right: 30px; margin-top: 0; }
-        }
+        @media (min-width: 768px) { nav { flex-direction: row; justify-content: center; padding: 15px 0; } .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; } .nav-links { gap: 30px; } .nav-links a { font-size: 14px; } .nav-auth { position: absolute; right: 30px; margin-top: 0; } }
 
         @keyframes fadeOutLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-50px); filter: blur(5px); } }
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-out { animation: fadeOutLeft 0.6s forwards; }
-        .animate-in { animation: fadeInRight 0.6s forwards; }
+        .animate-out { animation: fadeOutLeft 0.5s forwards; }
+        .animate-in { animation: fadeInRight 0.5s forwards; }
 
-        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13, 17, 23, 0.8), rgba(13, 17, 23, 0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        .content-box { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(0, 242, 255, 0.3); width: 100%; max-width: 800px; backdrop-filter: blur(8px); box-sizing: border-box; transition: var(--transition); }
-        h1 { font-size: 24px; margin-bottom: 20px; text-transform: uppercase; color: var(--neon); letter-spacing: 2px; }
-
+        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13,17,23,0.8), rgba(13,17,23,0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .content-box { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(0, 242, 255, 0.3); width: 100%; max-width: 800px; backdrop-filter: blur(8px); box-sizing: border-box; }
+        
         .course-card { background: rgba(22, 27, 34, 0.9); border: 1px solid var(--neon); border-radius: 12px; width: 100%; max-width: 650px; margin-bottom: 25px; padding: 25px; text-align: left; transition: var(--transition); cursor: pointer; }
-        .course-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); }
-        .course-info { font-size: 14px; line-height: 1.6; color: #8b949e; margin-top: 10px; }
+        .course-card:hover { transform: scale(1.03); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); }
 
         .btn { background: transparent; color: var(--neon); padding: 12px 30px; text-decoration: none; border: 2px solid var(--neon); border-radius: 6px; font-weight: bold; transition: var(--transition); display: inline-block; cursor: pointer; margin: 10px; font-family: inherit; }
         .btn:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 30px var(--neon); }
@@ -62,7 +46,7 @@
 </head>
 <body>
 
-<div id="loader">ЗАГРУЗКА СИСТЕМЫ...</div>
+<div id="loader">СИСТЕМА ИНИЦИАЛИЗИРУЕТСЯ...</div>
 <div id="content"></div>
 
 <script>
@@ -72,25 +56,23 @@
         projectId: "recordstudio-26d22",
         storageBucket: "recordstudio-26d22.firebasestorage.app",
         messagingSenderId: "794238287571",
-        appId: "1:794238287571:web:266a02e9cb1999cc0e5e26",
-        measurementId: "G-D4V92FXJZG"
+        appId: "1:794238287571:web:266a02e9cb1999cc0e5e26"
     };
 
     let db;
 
-    // Ждем полной загрузки страницы и Firebase
-    window.addEventListener('load', function() {
-        const checkInterval = setInterval(() => {
-            if (typeof firebase !== 'undefined') {
-                clearInterval(checkInterval);
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                document.getElementById('loader').style.display = 'none';
-                render();
-                console.log("Firebase подключен!");
-            }
-        }, 100);
-    });
+    // Инициализация при загрузке
+    window.onload = function() {
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            document.getElementById('loader').style.display = 'none';
+            render();
+            console.log("Firebase OK");
+        } catch (e) {
+            document.getElementById('loader').innerText = "ОШИБКА ПОДКЛЮЧЕНИЯ К ОБЛАКУ";
+        }
+    };
 
     function navigate(page) {
         const content = document.getElementById('content');
@@ -117,12 +99,12 @@
 
         let pc = "";
         if (page === 'about') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — современная облачная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — современная облачная экосистема обучения.</p></div></div>`;
         } else if (page === 'services') {
             pc = `<div class="sub-page"><h1>КУРСЫ</h1>
-                <div class="course-card"><h2>Python Developer</h2><p>Backend разработка и автоматизация процессов.</p><div class="course-info">Срок: 6 месяцев. Цена: 45 000 ₽</div></div>
-                <div class="course-card"><h2>AI & Neural Networks</h2><p>Глубокое обучение моделей и нейронные сети.</p><div class="course-info">Срок: 9 месяцев. Цена: 65 000 ₽</div></div>
-                <div class="course-card"><h2>Cyber Security Pro</h2><p>Этичный хакинг и защита систем.</p><div class="course-info">Срок: 1 год. Цена: 80 000 ₽</div></div></div>`;
+                <div class="course-card"><h2>Python Developer</h2><p>6 месяцев | 45 000 ₽</p></div>
+                <div class="course-card"><h2>AI & Neural Networks</h2><p>9 месяцев | 65 000 ₽</p></div>
+                <div class="course-card"><h2>Cyber Security Pro</h2><p>1 год | 80 000 ₽</p></div></div>`;
         } else if (page === 'profile') {
             pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         } else if (page === 'login') {
@@ -137,9 +119,9 @@
                 <button class="btn" onclick="register()">СОЗДАТЬ</button>
             </div></div>`;
         } else if (page === 'choice') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
         } else if (page === 'contacts') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: <strong>headquarters@record.studio</strong></p><p>Telegram: <a href="https://t.me" style="color:var(--neon);text-decoration:none"><strong>@HaLdjr</strong></a></p></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
         } else {
             pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         }
@@ -147,29 +129,28 @@
     }
 
     window.register = async function() {
-        const fio = document.getElementById('regFio').value;
-        const login = document.getElementById('regLogin').value;
-        const email = document.getElementById('regEmail').value;
-        const pass = document.getElementById('regPass').value;
-        if(!fio || !login || !email || !pass || !db) return alert("Подождите...");
+        const f = document.getElementById('regFio').value;
+        const l = document.getElementById('regLogin').value;
+        const e = document.getElementById('regEmail').value;
+        const p = document.getElementById('regPass').value;
+        if(!f || !l || !e || !p) return alert("Заполни все поля!");
         try {
-            await db.collection("users").doc(login).set({ fio, login, email, pass });
+            await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
             alert("Регистрация успешна!");
             navigate('login');
-        } catch (e) { alert("Ошибка: " + e.message); }
+        } catch (err) { alert("Ошибка записи!"); }
     }
 
     window.login = async function() {
-        const login = document.getElementById('logLogin').value;
-        const pass = document.getElementById('logPass').value;
-        if(!db) return;
+        const l = document.getElementById('logLogin').value;
+        const p = document.getElementById('logPass').value;
         try {
-            const doc = await db.collection("users").doc(login).get();
-            if (doc.exists && doc.data().pass === pass) {
+            const doc = await db.collection("users").doc(l).get();
+            if (doc.exists && doc.data().pass === p) {
                 sessionStorage.setItem('currentUser', JSON.stringify(doc.data()));
                 navigate('profile');
             } else { alert("Неверные данные!"); }
-        } catch (e) { alert("Ошибка входа."); }
+        } catch (err) { alert("Ошибка входа."); }
     }
 
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
