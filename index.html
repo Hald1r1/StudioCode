@@ -6,7 +6,7 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- Используем другой, более стабильный источник библиотеки -->
+    <!-- Подключаем базу через самый надежный шлюз -->
     <script src="https://unpkg.com"></script>
 
     <style>
@@ -46,11 +46,6 @@
         input:focus { border-color: var(--neon); outline: none; box-shadow: 0 0 10px var(--neon-glow); }
         .form-footer { margin-top: 25px; font-size: 14px; color: #8b949e; }
         .form-footer a { color: var(--neon); text-decoration: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .pay-methods { display: flex; gap: 15px; margin: 30px 0; justify-content: center; }
-        .pay-method-btn { flex: 1; padding: 20px; border: 1px solid #444; border-radius: 15px; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.02); font-weight: bold; }
-        .pay-method-btn.active { border-color: var(--neon); background: rgba(0, 119, 255, 0.05); box-shadow: 0 0 20px var(--neon-glow); color: var(--neon); }
-        .pay-form { display: none; text-align: left; max-width: 400px; margin: 0 auto; }
-        .pay-form.active { display: block; animation: pageIn 0.5s; }
     </style>
 </head>
 <body>
@@ -58,19 +53,17 @@
 <div id="content"></div>
 
 <script>
-    // --- ДАННЫЕ ПОДКЛЮЧЕНИЯ ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
     let supabase = null;
 
-    // Пытаемся создать клиента сразу
+    // Пытаемся инициализировать базу
     try {
         if (window.supabase) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         }
-    } catch(e) { console.log("Init error"); }
+    } catch(e) { console.error("Ошибка при подключении к Supabase"); }
 
-    // --- НАВИГАЦИЯ ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') {
@@ -85,7 +78,7 @@
         window.scrollTo(0,0);
     };
 
-    window.render = function() {
+    function render() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
@@ -102,21 +95,17 @@
         else if (page === 'services') {
             pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid"><div class="course-card" onclick="handleBuy('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div></div><div class="course-card" onclick="handleBuy('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div></div><div class="course-card" onclick="handleBuy('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div></div></div>`);
         }
-        else if (page === 'payment') {
-            const item = urlParams.get('item'), price = urlParams.get('price');
-            pc = wrap(`<div class="content-box" style="max-width: 550px"><h1>ОФОРМЛЕНИЕ</h1><p style="font-size: 18px;">Курс: <span style="color:var(--neon)">${item}</span></p><p style="font-size: 24px; font-weight: bold;">К оплате: ${price} ₽</p><div class="pay-methods"><div id="btnCard" class="pay-method-btn active" onclick="switchPay('card')">💳 КАРТА</div><div id="btnSbp" class="pay-method-btn" onclick="switchPay('sbp')">📲 СБП</div></div><div id="formCard" class="pay-form active"><input type="text" placeholder="0000 0000 0000 0000"><button class="btn" style="width:100%" onclick="confirmPay()">ОПЛАТИТЬ</button></div><div id="formSbp" class="pay-form"><input type="text" placeholder="+7..."><button class="btn" style="width:100%" onclick="confirmPay()">ОПЛАТИТЬ</button></div></div>`);
-        }
-        else if (page === 'profile') {
-            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
-        } 
         else if (page === 'login') {
             pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Создать</a></div></div>`);
         } 
         else if (page === 'register') {
             pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div>`);
         } 
-        else if (page === 'contacts') {
-            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
+        else if (page === 'profile') {
+            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
+        }
+        else if (page === 'choice') {
+            pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
         }
         else {
             pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button></div>`);
@@ -124,43 +113,40 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА (ТОЛЬКО ОБЛАКО) ---
+    // --- ЛОГИКА ---
     window.register = async function() {
-        if (!window.supabase) return alert("Ошибка: библиотека базы заблокирована вашим провайдером. Попробуйте VPN.");
-        if (!supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        if (!supabase) return alert("База данных недоступна. Проверьте интернет или VPN.");
+        
+        const f = document.getElementById('rFio').value, 
+              l = document.getElementById('rLog').value, 
+              e = document.getElementById('rEma').value, 
+              p = document.getElementById('rPas').value;
 
-        const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
 
         const { error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
-        if (error) alert("Ошибка регистрации: " + error.message);
-        else { alert("Вы успешно зарегистрированы в облаке!"); navigate('login'); }
+        if (error) alert("Ошибка: " + error.message);
+        else { alert("Регистрация успешна!"); navigate('login'); }
     }
 
     window.login = async function() {
-        if (!window.supabase) return alert("Ошибка: база данных недоступна.");
-        if (!supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        if (!supabase) return alert("База данных недоступна.");
+        
+        const l = document.getElementById('lLog').value, 
+              p = document.getElementById('lPas').value;
 
-        const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         const { data, error } = await supabase.from('profiles').select('*').eq('login', l).single();
         
-        if (data && data.pass === p) { 
-            sessionStorage.setItem('currentUser', JSON.stringify(data)); 
-            navigate('profile'); 
+        if (data && data.pass === p) {
+            sessionStorage.setItem('currentUser', JSON.stringify(data));
+            navigate('profile');
         } else {
             alert("Неверный логин или пароль!");
         }
     }
 
-    window.handleBuy = (n, p) => sessionStorage.getItem('currentUser') ? navigate('payment', {item: n, price: p}) : navigate('login');
-    window.switchPay = (t) => {
-        document.getElementById('formCard').classList.toggle('active', t === 'card');
-        document.getElementById('formSbp').classList.toggle('active', t === 'sbp');
-        document.getElementById('btnCard').classList.toggle('active', t === 'card');
-        document.getElementById('btnSbp').classList.toggle('active', t === 'sbp');
-    }
-    window.confirmPay = () => { alert("Оплата принята!"); navigate('profile'); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
+    window.handleBuy = (n, p) => sessionStorage.getItem('currentUser') ? alert("Переход к оплате...") : navigate('login');
 
     render();
     window.onpopstate = render;
