@@ -18,7 +18,6 @@
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: #ffffff; overflow-x: hidden; }
 
-        /* Навигация */
         nav { position: fixed; top: 0; width: 100%; background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px); padding: 15px 0; border-bottom: 2px solid var(--neon); z-index: 1000; display: flex; flex-direction: column; align-items: center; }
         .logo { font-size: 24px; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-weight: bold; cursor: pointer; transition: var(--transit); }
         .nav-links { display: flex; gap: 20px; margin-top: 10px; }
@@ -59,17 +58,12 @@
         .form-footer { margin-top: 25px; font-size: 14px; color: #8b949e; }
         .form-footer a { color: var(--neon); text-decoration: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
 
-        /* Уведомления */
         #status-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; justify-content: center; align-items: center; }
         .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 60px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); }
         #status-text { font-family: 'Consolas', monospace; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
         .loader { margin-top: 25px; width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Стили оплаты */
-        .pay-choice-grid { display: flex; gap: 20px; margin-top: 35px; width: 100%; }
-        .pay-btn-box { flex: 1; padding: 35px; border: 1px solid #333; border-radius: 20px; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.02); text-align: center; font-weight: bold; font-size: 18px; }
-        .pay-btn-box:hover { border-color: var(--neon); box-shadow: 0 0 25px var(--neon-glow); color: var(--neon); }
         .bank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; width: 100%; }
         .bank-btn { padding: 20px; border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 12px; cursor: pointer; transition: 0.3s; background: #0a0c10; font-weight: bold; text-decoration: none; color: #fff; display: block; text-align: center; }
         .bank-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
@@ -86,8 +80,10 @@
 
 <div id="content"></div>
 
+<!-- Скрытый iframe для отправки данных без перезагрузки -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
 <script>
-    // --- ТВОЯ АКТУАЛЬНАЯ ССЫЛКА ---
     const SHEET_URL = 'https://google.com';
 
     function showStatus(text, showLoader = true) {
@@ -103,8 +99,7 @@
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') {
-            const keys = Array.from(url.searchParams.keys());
-            keys.forEach(k => url.searchParams.delete(k));
+            Array.from(url.searchParams.keys()).forEach(k => url.searchParams.delete(k));
         } else {
             url.searchParams.set('page', page);
             Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
@@ -131,33 +126,16 @@
 
         if (page === 'order') {
             const item = urlParams.get('item'), price = urlParams.get('price');
-            pc = wrap(`
-                <div class="content-box" style="max-width: 650px">
-                    <h1>ОФОРМЛЕНИЕ</h1>
-                    <p style="font-size: 22px; color: var(--neon); font-weight: bold; margin-bottom:10px;">${item}</p>
-                    <p style="font-size: 26px; border-bottom: 1px solid #333; padding-bottom: 20px;">К оплате: ${price} ₽</p>
-                    <div id="pay-methods-screen">
-                        <p>ВЫБЕРИТЕ МЕТОД ОПЛАТЫ:</p>
-                        <div class="pay-choice-grid">
-                            <div class="pay-btn-box" onclick="document.getElementById('card-form').style.display='block'; document.getElementById('pay-methods-screen').style.display='none';">💳 КАРТА</div>
-                            <div class="pay-btn-box" onclick="document.getElementById('sbp-form').style.display='block'; document.getElementById('pay-methods-screen').style.display='none';">📲 СБП</div>
-                        </div>
-                    </div>
-                    <div id="card-form" style="display:none">
-                        <input type="text" placeholder="Номер карты"><div style="display:flex; gap:10px"><input type="text" placeholder="ММ/ГГ"><input type="text" placeholder="CVC"></div>
-                        <button class="btn" style="width:100%; margin-top:20px" onclick="showStatus('ОБРАБОТКА...'); setTimeout(()=>showStatus('ПЛАТЕЖ ПРИНЯТ!', false), 1500); setTimeout(()=>hideStatus(), 3000);">ОПЛАТИТЬ</button>
-                    </div>
-                    <div id="sbp-form" style="display:none"><p>ВЫБЕРИТЕ БАНК:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div></div>
-                </div>`);
+            pc = wrap(`<div class="content-box" style="max-width: 650px"><h1>ОФОРМЛЕНИЕ</h1><p style="font-size: 22px; color: var(--neon); font-weight: bold;">${item}</p><p style="font-size: 26px; border-bottom: 1px solid #333; padding-bottom: 20px;">К оплате: ${price} ₽</p><div id="pay-screen"><p>ВЫБЕРИТЕ МЕТОД ОПЛАТЫ:</p><div style="display:flex; gap:20px; margin-top:20px"><button class="btn" style="flex:1" onclick="alert('Форма карты в разработке')">💳 КАРТА</button><button class="btn" style="flex:1" onclick="document.getElementById('sbp-area').style.display='block'; document.getElementById('pay-screen').style.display='none'">📲 СБП</button></div></div><div id="sbp-area" style="display:none"><p>ВЫБЕРИТЕ БАНК:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div></div></div>`);
         }
         else if (page === 'about') {
             pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br> Наши программы разработаны совместно с архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
         } 
         else if (page === 'services') {
             pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
-                    <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div></div>
-                    <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и NLP.</div></div>
-                    <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в коде и защита инфраструктур.</div></div>
+                    <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div><div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API.</div></div>
+                    <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div><div class="info">От основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div></div>
+                    <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div><div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div></div>
                 </div>`);
         }
         else if (page === 'contacts') {
@@ -181,20 +159,24 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ---
+    // --- ЛОГИКА БЕЗ CORS (ЧЕРЕЗ GET ЗАПРОС) ---
     window.register = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
 
         showStatus("РЕГИСТРАЦИЯ...");
-        const query = `?fio=${encodeURIComponent(f)}&login=${encodeURIComponent(l)}&ema=${encodeURIComponent(e)}&pass=${encodeURIComponent(p)}`;
+        
+        // Создаем ссылку с данными
+        const url = `${SHEET_URL}?fio=${encodeURIComponent(f)}&login=${encodeURIComponent(l)}&ema=${encodeURIComponent(e)}&pass=${encodeURIComponent(p)}`;
+        
+        // Отправляем через скрытую картинку - самый надежный способ обойти CORS
         const img = new Image();
-        img.src = SHEET_URL + query;
+        img.src = url;
 
         setTimeout(() => {
             showStatus("УСПЕШНАЯ РЕГИСТРАЦИЯ!", false);
             setTimeout(() => { hideStatus(); navigate('login'); }, 1500);
-        }, 1200);
+        }, 1500);
     };
 
     window.login = function() {
@@ -202,14 +184,21 @@
         if(!l || !p) return alert("Введите данные!");
         showStatus("ПРОВЕРКА ДАННЫХ...");
 
-        fetch(SHEET_URL).then(res => res.json()).then(users => {
+        // Для входа CORS обмануть сложнее, пробуем чистый запрос
+        fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(users => {
             const user = users.find(u => String(u.login) === l && String(u.pass) === p);
             if (user) {
                 showStatus("УСПЕШНЫЙ ВХОД!", false);
                 sessionStorage.setItem('currentUser', JSON.stringify(user));
                 setTimeout(() => { hideStatus(); navigate('profile'); }, 1500);
-            } else { hideStatus(0); alert("Ошибка: Данные неверны!"); }
-        }).catch(() => { hideStatus(0); alert("Ошибка связи"); });
+            } else { hideStatus(0); alert("Ошибка: Аккаунт не найден!"); }
+        })
+        .catch(err => {
+            hideStatus(0);
+            alert("Ошибка связи с базой. Убедитесь, что скрипт Google развернут правильно!");
+        });
     };
 
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
