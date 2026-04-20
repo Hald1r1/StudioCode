@@ -87,7 +87,6 @@
 <div id="content"></div>
 
 <script>
-    // --- ССЫЛКА НА ТАБЛИЦУ ---
     const SHEET_URL = 'https://google.com';
 
     function showStatus(text, showLoader = true) {
@@ -159,23 +158,52 @@
                 </div>`);
         }
         else if (page === 'about') {
-            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>О СТУДИИ</h1>
+                    <p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">
+                        Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>
+                        Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.
+                    </p>
+                </div>`);
         } 
         else if (page === 'services') {
-            pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
-                <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽</div><div class="info">Backend на Django и FastAPI. Работа с PostgreSQL.</div></div>
-                <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽</div><div class="info">Обучение современных LLM и NLP.</div></div>
-                <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽</div><div class="info">Этичный хакинг и защита инфраструктур.</div></div>
-            </div>`);
+            pc = wrap(`
+                <h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1>
+                <div class="course-grid">
+                    <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')">
+                        <h2>Python Developer Pro</h2>
+                        <div class="price">45 000 ₽ / 6 месяцев</div>
+                        <div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL, создание высоконагруженных API и автоматизация бизнес-процессов.</div>
+                    </div>
+                    <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')">
+                        <h2>Neural Networks & AI</h2>
+                        <div class="price">65 000 ₽ / 9 месяцев</div>
+                        <div class="info">От математических основ Data Science до обучения современных LLM. Работа с PyTorch, Computer Vision (CV) и Natural Language Processing (NLP).</div>
+                    </div>
+                    <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')">
+                        <h2>Cyber Security Expert</h2>
+                        <div class="price">80 000 ₽ / 12 месяцев</div>
+                        <div class="info">Станьте «белым» хакером. Этичный хакинг, реверс-инжиниринг, поиск уязвимостей в корпоративном коде и защита облачных инфраструктур.</div>
+                    </div>
+                </div>`);
+        }
+        else if (page === 'contacts') {
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>СВЯЗЬ</h1>
+                    <p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p>
+                    <p style="color: #8b949e; margin-top: 20px;">Мы работаем 24/7 для вашей поддержки.</p>
+                </div>`);
         }
         else if (page === 'register') {
-            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div>`);
+            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>`);
         } 
         else if (page === 'login') {
-            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div>`);
+            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрироваться</a></div></div>`);
         }
         else if (page === 'profile') {
-            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p>Email: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
+            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p style="color:#8b949e">Email: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
         }
         else if (page === 'choice') {
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
@@ -186,38 +214,29 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ФИКС ЛОГИКИ ТАБЛИЦ ---
+    // --- ЛОГИКА ---
     window.register = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
-
         showStatus("РЕГИСТРАЦИЯ...");
-
         fetch(SHEET_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({fio: f, login: l, ema: e, pass: p})
         }).then(() => {
-            // Маленькая пауза для гарантии записи в Google
             setTimeout(() => {
                 showStatus("УСПЕШНАЯ РЕГИСТРАЦИЯ!", false);
                 setTimeout(() => { hideStatus(); navigate('login'); }, 1500);
             }, 500);
-        }).catch(err => {
-            hideStatus(0);
-            alert("Ошибка сети!");
-        });
+        }).catch(() => { hideStatus(0); alert("Ошибка сети!"); });
     };
 
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         if(!l || !p) return alert("Введите данные!");
         showStatus("ПРОВЕРКА ДАННЫХ...");
-
-        fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(users => {
+        fetch(SHEET_URL).then(res => res.json()).then(users => {
             const user = users.find(u => String(u.login) === l && String(u.pass) === p);
             if (user) {
                 showStatus("УСПЕШНЫЙ ВХОД!", false);
