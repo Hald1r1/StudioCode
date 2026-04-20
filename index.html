@@ -142,16 +142,28 @@
     }
 
     window.register = async function() {
+        // Берем все 4 поля из твоей формы
         const fio = document.getElementById('regFio').value;
         const login = document.getElementById('regLogin').value;
         const email = document.getElementById('regEmail').value;
         const pass = document.getElementById('regPass').value;
-        if(!fio || !login || !pass || !db) return alert("Загрузка...");
+        
+        if(!fio || !login || !email || !pass || !db) return alert("Заполни все поля!");
+
         try {
-            await db.collection("users").doc(login).set({ fio, login, pass });
+            // Сохраняем расширенный профиль
+            await db.collection("users").doc(login).set({
+                fio: fio,
+                login: login,
+                email: email,
+                pass: pass,
+                regDate: new Date()
+            });
             alert("Регистрация успешна!");
             navigate('login');
-        } catch (e) { alert("Ошибка записи: " + e.message); }
+        } catch (e) { 
+            alert("Ошибка записи: " + e.message); 
+        }
     }
 
     window.login = async function() {
@@ -161,11 +173,13 @@
         try {
             const doc = await db.collection("users").doc(login).get();
             if (doc.exists && doc.data().pass === pass) {
+                // Сохраняем все данные пользователя в сессию
                 sessionStorage.setItem('currentUser', JSON.stringify(doc.data()));
                 navigate('profile');
             } else { alert("Неверные данные!"); }
         } catch (e) { alert("Ошибка входа."); }
     }
+
 
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
     window.onpopstate = render;
