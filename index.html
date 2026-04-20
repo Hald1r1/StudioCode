@@ -6,9 +6,6 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- Основной скрипт базы -->
-    <script src="https://unpkg.com"></script>
-
     <style>
         :root {
             --neon: #0077ff; 
@@ -73,24 +70,15 @@
 
 <div id="content"></div>
 
-<script>
-    // --- КОНФИГУРАЦИЯ БАЗЫ ---
+<!-- Используем type="module" для прямой загрузки Supabase -->
+<script type="module">
+    import { createClient } from 'https://jsdelivr.net'
+
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    let supabaseClient = null;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Прямая попытка создать клиента
-    function connectDB() {
-        const lib = window.supabase || (window.Supabase ? window.Supabase : null);
-        if (lib && typeof lib.createClient === 'function') {
-            supabaseClient = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("База готова");
-            return true;
-        }
-        return false;
-    }
-
-    // --- НАВИГАЦИЯ ---
+    // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') {
@@ -106,7 +94,7 @@
         window.scrollTo(0,0);
     };
 
-    function render() {
+    window.render = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
@@ -148,23 +136,19 @@
 
     // --- ЛОГИКА ---
     window.register = async function() {
-        if (!supabaseClient) connectDB();
-        if (!supabaseClient) return alert("База все еще грузится. Подождите пару секунд.");
-        
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        if(!f || !l || !e || !p) return alert("Заполните поля!");
+        if(!f || !l || !e || !p) return alert("Заполните все поля!");
         
-        const { error } = await supabaseClient.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
+        const { error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
         if (error) alert("Ошибка: " + error.message);
         else { alert("Регистрация успешна!"); navigate('login'); }
     }
 
     window.login = async function() {
-        if (!supabaseClient) connectDB();
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
-        const { data } = await supabaseClient.from('profiles').select('*').eq('login', l).single();
+        const { data, error } = await supabase.from('profiles').select('*').eq('login', l).single();
         if (data && data.pass === p) { sessionStorage.setItem('currentUser', JSON.stringify(data)); navigate('profile'); }
-        else alert("Неверные данные!");
+        else alert("Неверный логин или пароль!");
     }
 
     window.handleBuy = (n, p) => sessionStorage.getItem('currentUser') ? navigate('payment', {item: n, price: p}) : navigate('login');
@@ -177,8 +161,6 @@
     window.confirmPay = () => { alert("Оплата подтверждена!"); navigate('profile'); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
 
-    // Авто-инициализация
-    connectDB();
     render();
     window.onpopstate = render;
 </script>
