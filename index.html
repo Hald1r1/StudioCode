@@ -144,6 +144,7 @@
     window.register = async function() {
         const fio = document.getElementById('regFio').value;
         const login = document.getElementById('regLogin').value;
+        const email = document.getElementById('regEmail').value;
         const pass = document.getElementById('regPass').value;
         if(!fio || !login || !pass || !db) return alert("Загрузка...");
         try {
