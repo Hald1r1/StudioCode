@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «РЕКОРД»</title>
     
-    <!-- Подключаем Firebase напрямую -->
+    <!-- Используем максимально стабильные версии для мобильного интернета -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -44,12 +44,21 @@
         appId: "1:794238287571:web:266a02e9cb1999cc0e5e26"
     };
 
-    // Мгновенная инициализация
     let db = null;
-    try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-    } catch(e) { console.log("Инициализация..."); }
+
+    // ФИКС ДЛЯ РОССИИ И МОБИЛЬНОГО ИНТЕРНЕТА
+    function startCloud() {
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            // Включаем режим длинных опросов (Long Polling)
+            db.settings({ experimentalForceLongPolling: true });
+            console.log("Cloud Ready");
+        } catch(e) { 
+            setTimeout(startCloud, 1000); 
+        }
+    }
+    startCloud();
 
     window.navigate = function(page) {
         const url = new URL(window.location);
@@ -68,33 +77,29 @@
 
         let pc = "";
         if (page === 'about') pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio — современная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
-        else if (page === 'services') pc = `<div class="sub-page"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Developer</h2><p>6 месяцев | 45 000 ₽</p></div><div class="course-card"><h2>AI Machine Learning</h2><p>9 месяцев | 65 000 ₽</p></div><div class="course-card"><h2>Cyber Security</h2><p>1 год | 80 000 ₽</p></div></div>`;
-        else if (page === 'profile') pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Добро пожаловать, <strong>${user.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
+        else if (page === 'services') pc = `<div class="sub-page"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Pro</h2><p>6 месяцев | 45 000 ₽</p></div><div class="course-card"><h2>AI Machine Learning</h2><p>9 месяцев | 65 000 ₽</p></div></div>`;
+        else if (page === 'profile') pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${user.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         else if (page === 'login') pc = `<div class="sub-page"><div class="form-container"><h2>ВХОД</h2><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
         else if (page === 'register') pc = `<div class="sub-page"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
         else if (page === 'choice') pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
-        else if (page === 'contacts') pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
+        else if (page === 'contacts') pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>TG: @HaLdjr</p></div></div>`;
         else pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         
         contentDiv.innerHTML = nav + pc;
     }
 
     window.register = async function() {
+        if (!db) return alert("Соединение с облаком устанавливается... Попробуйте через 5 секунд.");
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        if(!f || !l || !e || !p) return alert("Заполни все поля!");
-        
-        if (!db) { 
-            // Если база не успела, пробуем инициализировать еще раз быстро
-            try { db = firebase.firestore(); } catch(e) { return alert("Ошибка связи с облаком. Обновите страницу."); }
-        }
-
+        if(!f || !l || !e || !p) return alert("Заполни поля!");
         try {
             await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
             alert("Успешно!"); navigate('login');
-        } catch (err) { alert("Ошибка базы данных! Проверьте вкладку Rules в Firebase."); }
+        } catch (err) { alert("Ошибка сети. Попробуйте включить/выключить авиарежим или сменить сеть."); }
     }
 
     window.login = async function() {
+        if (!db) return;
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         try {
             const doc = await db.collection("users").doc(l).get();
