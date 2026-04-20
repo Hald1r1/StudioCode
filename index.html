@@ -37,6 +37,7 @@
             .nav-auth { position: absolute; right: 30px; margin-top: 0; }
         }
 
+        /* Плавные анимации */
         @keyframes fadeOutLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-50px); filter: blur(5px); } }
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
         .animate-out { animation: fadeOutLeft 0.6s forwards; }
@@ -109,26 +110,31 @@
 
         let pc = "";
         if (page === 'about') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — современная облачная экосистема.</p></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — современная облачная экосистема обучения.</p></div></div>`;
         } else if (page === 'services') {
-            pc = `<div class="sub-page"><h1>КУРСЫ</h1><div class="course-card"><h2>Python Developer</h2><p>Backend разработка и автоматизация.</p></div><div class="course-card"><h2>AI & Neural Networks</h2><p>Обучение моделей и Deep Learning.</p></div></div>`;
+            pc = `<div class="sub-page"><h1>КУРСЫ</h1>
+                <div class="course-card"><h2>Python Developer</h2><p>Backend разработка и автоматизация процессов.</p></div>
+                <div class="course-card"><h2>AI & Neural Networks</h2><p>Глубокое обучение моделей и нейронные сети.</p></div>
+                <div class="course-card"><h2>Cyber Security Pro</h2><p>Этичный хакинг и защита систем.</p></div></div>`;
         } else if (page === 'profile') {
             pc = `<div class="sub-page"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${currentUser.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         } else if (page === 'login') {
             pc = `<div class="sub-page"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logLogin" placeholder="Логин"><input type="password" id="logPass" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
         } else if (page === 'register') {
-            pc = `<div class="sub-page"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2>
+            pc = `<div class="sub-page"><div class="form-container">
+                <h2>РЕГИСТРАЦИЯ</h2>
                 <input type="text" id="regFio" placeholder="Полное ФИО">
                 <input type="text" id="regLogin" placeholder="Логин">
                 <input type="email" id="regEmail" placeholder="Email">
                 <input type="password" id="regPass" placeholder="Пароль">
-                <button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
+                <button class="btn" onclick="register()">СОЗДАТЬ АККАУНТ</button>
+            </div></div>`;
         } else if (page === 'choice') {
-            pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
         } else if (page === 'contacts') {
             pc = `<div class="sub-page"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
         } else {
-            pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
+            pc = `<div class="sub-page"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         }
         contentDiv.innerHTML = navHtml + pc;
     }
@@ -143,7 +149,7 @@
             await db.collection("users").doc(login).set({ fio, login, email, pass });
             alert("Регистрация успешна!");
             navigate('login');
-        } catch (e) { alert("Ошибка записи!"); console.log(e); }
+        } catch (e) { alert("Ошибка записи: " + e.message); }
     }
 
     window.login = async function() {
