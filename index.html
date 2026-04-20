@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Studio «Рекорд»</title>
     
-    <!-- Подключаем Firebase самым стабильным способом -->
+    <!-- Стабильные библиотеки Firebase -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -14,46 +14,54 @@
             --neon: #00f2ff;
             --bg: #0d1117;
             --card-bg: rgba(22, 27, 34, 0.85);
-            --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body, html { margin: 0; padding: 0; min-height: 100%; font-family: 'Consolas', 'Monaco', monospace; background-color: var(--bg); color: #e6edf3; overflow-x: hidden; }
 
+        /* Навигация */
         nav { position: fixed; top: 0; width: 100%; background: rgba(22, 27, 34, 0.95); padding: 10px 0; border-bottom: 2px solid var(--neon); z-index: 1000; display: flex; flex-direction: column; align-items: center; }
         .logo { font-size: 20px; color: var(--neon); text-shadow: 0 0 10px var(--neon); margin-bottom: 5px; }
         .nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .nav-links a { text-decoration: none; color: #c9d1d9; font-weight: bold; text-transform: uppercase; font-size: 12px; padding: 5px; cursor: pointer; transition: var(--transition); }
         .nav-links a:hover { color: var(--neon); transform: scale(1.1); }
         .nav-auth a { text-decoration: none; color: var(--neon); border: 1px solid var(--neon); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: var(--transition); display: inline-block; margin-top: 5px; }
-        .nav-auth a:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 15px var(--neon); }
+        .nav-auth a:hover { background: var(--neon); color: var(--bg); transform: scale(1.15); box-shadow: 0 0 15px var(--neon); }
 
         @media (min-width: 768px) {
             nav { flex-direction: row; justify-content: center; padding: 15px 0; }
             .logo { position: absolute; left: 30px; margin-bottom: 0; font-size: 24px; }
-            .nav-links { gap: 30px; }
-            .nav-links a { font-size: 14px; }
+            .nav-links { gap: 30px; font-size: 14px; }
             .nav-auth { position: absolute; right: 30px; margin-top: 0; }
         }
 
-        @keyframes fadeInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-in { animation: fadeInRight 0.6s forwards; }
+        /* Анимация появления */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.6s ease-out; }
 
-        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13, 17, 23, 0.8), rgba(13, 17, 23, 0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        /* Фон и контейнеры */
+        .sub-page { padding: 140px 15px 50px; text-align: center; min-height: 100vh; background: linear-gradient(rgba(13,17,23,0.8), rgba(13,17,23,0.8)), url('geekbot_ru_1776150134725.png') no-repeat center 20%; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         .content-box { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(0, 242, 255, 0.3); width: 100%; max-width: 800px; backdrop-filter: blur(8px); box-sizing: border-box; }
-        
+        h1 { font-size: 26px; margin-bottom: 20px; text-transform: uppercase; color: var(--neon); letter-spacing: 2px; }
+        @media (min-width: 768px) { h1 { font-size: 40px; } }
+
+        /* Карточки курсов */
         .course-card { background: rgba(22, 27, 34, 0.9); border: 1px solid var(--neon); border-radius: 12px; width: 100%; max-width: 650px; margin-bottom: 25px; padding: 25px; text-align: left; transition: var(--transition); cursor: pointer; }
-        .course-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); }
+        .course-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); border-color: #fff; }
         .course-info { font-size: 14px; line-height: 1.6; color: #8b949e; margin-top: 10px; }
 
+        /* Кнопки */
         .btn { background: transparent; color: var(--neon); padding: 12px 30px; text-decoration: none; border: 2px solid var(--neon); border-radius: 6px; font-weight: bold; transition: var(--transition); display: inline-block; cursor: pointer; margin: 10px; font-family: inherit; }
         .btn:hover { background: var(--neon); color: var(--bg); transform: scale(1.1); box-shadow: 0 0 30px var(--neon); }
-        
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 4px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--neon); outline: none; }
         .form-container { background: var(--card-bg); padding: 35px; border-radius: 12px; border: 1px solid var(--neon); width: 100%; max-width: 420px; }
     </style>
 </head>
 <body>
-    <div id="content"></div>
+
+<div id="content"></div>
 
 <script>
     const firebaseConfig = {
@@ -66,26 +74,24 @@
     };
 
     let db;
-
-    // Безопасная инициализация
-    window.onload = function() {
+    // Попытка инициализации без блокировки интерфейса
+    try {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            render();
-        } else {
-            setTimeout(window.onload, 500);
         }
-    };
+    } catch(e) { console.error("Firebase init error"); }
 
-    window.navigate = function(page) {
+    function navigate(page) {
         const url = new URL(window.location);
-        page === 'home' ? url.searchParams.delete('page') : url.searchParams.set('page', page);
+        if (page === 'home') url.searchParams.delete('page');
+        else url.searchParams.set('page', page);
         window.history.pushState({}, '', url);
         render();
-    };
+        window.scrollTo(0,0);
+    }
 
-    window.render = function() {
+    function render() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
@@ -95,31 +101,32 @@
 
         let pc = "";
         if (page === 'about') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>О НАС</h1><p>Code Studio «РЕКОРД» — это современная экосистема обучения. Мы готовим элиту IT-индустрии.</p></div></div>`;
+            pc = `<div class="sub-page animate"><div class="content-box"><h1>О НАС</h1><p style="line-height:1.8">Code Studio «РЕКОРД» — это цифровая лаборатория. Мы объединили опыт ведущих разработчиков, чтобы дать вам прикладные знания. Наша цель — подготовить элиту IT-индустрии.</p></div></div>`;
         } else if (page === 'services') {
-            pc = `<div class="sub-page animate-in"><h1>КУРСЫ</h1>
-                <div class="course-card"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p><div class="course-info">Django, FastAPI и PostgreSQL.</div></div>
-                <div class="course-card"><h2>AI & Neural Networks</h2><p><strong>9 месяцев | 65 000 ₽</strong></p><div class="course-info">Deep Learning и PyTorch.</div></div>
-                <div class="course-card"><h2>Cyber Security</h2><p><strong>1 год | 80 000 ₽</strong></p><div class="course-info">Этичный хакинг и защита систем.</div></div></div>`;
+            pc = `<div class="sub-page animate"><h1>ДОСТУПНЫЕ КУРСЫ</h1>
+                <div class="course-card" onclick="alert('Оплата временно недоступна')"><h2>Python Developer</h2><p><strong>6 месяцев | 45 000 ₽</strong></p><div class="course-info">Освоение бэкенда на Django и FastAPI. Работа с базами данных PostgreSQL и создание API.</div></div>
+                <div class="course-card" onclick="alert('Оплата временно недоступна')"><h2>AI & Neural Networks</h2><p><strong>9 месяцев | 65 000 ₽</strong></p><div class="course-info">Глубокое погружение в Machine Learning. Обучение моделей на PyTorch и Computer Vision.</div></div>
+                <div class="course-card" onclick="alert('Оплата временно недоступна')"><h2>Cyber Security Pro</h2><p><strong>1 год | 80 000 ₽</strong></p><div class="course-info">Этичный хакинг, пентестинг и защита сетевой инфраструктуры. Практика на реальных атаках.</div></div></div>`;
         } else if (page === 'profile') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Привет, <strong>${user.fio}</strong>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
+            pc = `<div class="sub-page animate"><div class="content-box"><h1>ПРОФИЛЬ</h1><p>Приветствуем, <strong>${user.fio}</strong>!</p><p>Статус: Студент</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div></div>`;
         } else if (page === 'login') {
-            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>ВХОД</h2><input type="text" id="logL" placeholder="Логин"><input type="password" id="logP" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
+            pc = `<div class="sub-page animate"><div class="form-container"><h2>ВХОД</h2><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div></div>`;
         } else if (page === 'register') {
-            pc = `<div class="sub-page animate-in"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="regF" placeholder="ФИО"><input type="text" id="regL" placeholder="Логин"><input type="email" id="regE" placeholder="Email"><input type="password" id="regP" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ АККАУНТ</button></div></div>`;
+            pc = `<div class="sub-page animate"><div class="form-container"><h2>РЕГИСТРАЦИЯ</h2><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div></div>`;
         } else if (page === 'choice') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><button class="btn" onclick="navigate('login')" style="margin-right:15px">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div>`;
+            pc = `<div class="sub-page animate"><div class="content-box"><h1>ВХОД В СИСТЕМУ</h1><div style="margin-top:20px;"><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div></div></div>`;
         } else if (page === 'contacts') {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: headquarters@record.studio</p><p>Telegram: @HaLdjr</p></div></div>`;
+            pc = `<div class="sub-page animate"><div class="content-box"><h1>КОНТАКТЫ</h1><p>Email: <strong>headquarters@record.studio</strong></p><p>Telegram: <a href="https://t.me" style="color:var(--neon);text-decoration:none"><strong>@HaLdjr</strong></a></p></div></div>`;
         } else {
-            pc = `<div class="sub-page animate-in"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p>Твой путь в IT начинается здесь.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
+            pc = `<div class="sub-page animate"><div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="margin: 25px 0; line-height:1.6">Твой путь в программирование начинается здесь. Профессиональные курсы от экспертов индустрии.</p><button class="btn" onclick="navigate('choice')">ВОЙТИ В СИСТЕМУ</button></div></div>`;
         }
         contentDiv.innerHTML = nav + pc;
-    };
+    }
 
     window.register = async function() {
-        const f = document.getElementById('regF').value, l = document.getElementById('regL').value, e = document.getElementById('regE').value, p = document.getElementById('regP').value;
-        if(!f || !l || !e || !p || !db) return alert("Подождите загрузки...");
+        const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
+        if(!f || !l || !e || !p) return alert("Заполни все поля!");
+        if(!db) return alert("База еще не готова, подождите секунду...");
         try {
             await db.collection("users").doc(l).set({ fio: f, login: l, email: e, pass: p });
             alert("Регистрация успешна!"); navigate('login');
@@ -127,19 +134,22 @@
     }
 
     window.login = async function() {
-        const l = document.getElementById('logL').value, p = document.getElementById('logP').value;
-        if(!db) return;
+        const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
+        if(!db) return alert("Подключение к облаку...");
         try {
-            const doc = await db.collection("users").doc(l).get();
-            if (doc.exists && doc.data().pass === p) {
-                sessionStorage.setItem('currentUser', JSON.stringify(doc.data()));
+            const d = await db.collection("users").doc(l).get();
+            if (d.exists && d.data().pass === p) {
+                sessionStorage.setItem('currentUser', JSON.stringify(d.data()));
                 navigate('profile');
-            } else { alert("Неверные данные!"); }
+            } else alert("Неверные данные!");
         } catch (err) { alert("Ошибка входа."); }
     }
 
     window.logout = function() { sessionStorage.removeItem('currentUser'); navigate('home'); }
     window.onpopstate = render;
+    
+    // Запуск сайта
+    render();
 </script>
 </body>
 </html>
