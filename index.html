@@ -6,6 +6,9 @@
     <title>Code Studio «РЕКОРД» | Pro Edition</title>
     <link rel="icon" href="image.png" type="image/png">
     
+    <!-- Подключаем библиотеку Supabase через надежный CDN -->
+    <script src="https://jsdelivr.net"></script>
+
     <style>
         :root {
             --neon: #0077ff; 
@@ -70,13 +73,21 @@
 
 <div id="content"></div>
 
-<!-- Используем type="module" для прямой загрузки Supabase -->
-<script type="module">
-    import { createClient } from 'https://jsdelivr.net'
-
+<script>
+    // --- ПАРАМЕТРЫ ОБЛАКА ---
     const SUPABASE_URL = 'https://supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_jp9t1Oz6ZRSsb0I0cm1Kag_TGgk8cPa';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabase = null;
+
+    // Безопасное создание клиента
+    function getSupabase() {
+        if (supabase) return supabase;
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            return supabase;
+        }
+        return null;
+    }
 
     // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
@@ -94,14 +105,27 @@
         window.scrollTo(0,0);
     };
 
-    window.render = function() {
+    function render() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
         const contentDiv = document.getElementById('content');
         if (!contentDiv) return;
         const user = JSON.parse(sessionStorage.getItem('currentUser'));
         
-        const nav = `<nav><div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div><div class="nav-links"><a onclick="navigate('home')">Главная</a><a onclick="navigate('about')">О нас</a><a onclick="navigate('services')">Курсы</a><a onclick="navigate('contacts')">Контакты</a></div><div class="nav-auth">${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}</div></nav>`;
+        const nav = `
+            <nav>
+                <div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div>
+                <div class="nav-links">
+                    <a onclick="navigate('home')">Главная</a>
+                    <a onclick="navigate('about')">О нас</a>
+                    <a onclick="navigate('services')">Курсы</a>
+                    <a onclick="navigate('contacts')">Контакты</a>
+                </div>
+                <div class="nav-auth">
+                    ${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}
+                </div>
+            </nav>`;
+
         let pc = "";
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
 
@@ -120,11 +144,14 @@
             pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Добро пожаловать, <span style="color:var(--neon)">${user?.fio || 'Гость'}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
         } 
         else if (page === 'login') {
-            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Создать</a></div></div>`);
+            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button><div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрироваться</a></div></div>`);
         } 
         else if (page === 'register') {
-            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div>`);
+            pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button><div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div></div>`);
         } 
+        else if (page === 'choice') {
+            pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
+        }
         else if (page === 'contacts') {
             pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 24px">Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p></div>`);
         }
@@ -136,17 +163,23 @@
 
     // --- ЛОГИКА ---
     window.register = async function() {
+        const sb = getSupabase();
+        if (!sb) return alert("База данных еще загружается. Подождите пару секунд.");
+        
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
         
-        const { error } = await supabase.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
+        const { error } = await sb.from('profiles').insert([{ fio: f, login: l, email: e, pass: p }]);
         if (error) alert("Ошибка: " + error.message);
-        else { alert("Регистрация успешна!"); navigate('login'); }
+        else { alert("Успешно!"); navigate('login'); }
     }
 
     window.login = async function() {
+        const sb = getSupabase();
+        if (!sb) return alert("База загружается...");
+        
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
-        const { data, error } = await supabase.from('profiles').select('*').eq('login', l).single();
+        const { data } = await sb.from('profiles').select('*').eq('login', l).single();
         if (data && data.pass === p) { sessionStorage.setItem('currentUser', JSON.stringify(data)); navigate('profile'); }
         else alert("Неверный логин или пароль!");
     }
@@ -161,6 +194,7 @@
     window.confirmPay = () => { alert("Оплата подтверждена!"); navigate('profile'); }
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); }
 
+    // Запуск сайта
     render();
     window.onpopstate = render;
 </script>
