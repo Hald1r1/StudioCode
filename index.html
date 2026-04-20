@@ -79,7 +79,6 @@
     <div class="status-card">
         <div id="status-text"></div>
         <div id="status-loader" class="loader"></div>
-        <!-- Кнопка закрытия для модальных окон -->
         <button id="status-close" class="btn" style="display:none; margin-top:30px; padding: 10px 25px; font-size: 14px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button>
     </div>
 </div>
@@ -87,7 +86,6 @@
 <div id="content"></div>
 
 <script>
-    // --- ТВОЯ АКТУАЛЬНАЯ ССЫЛКА НА БАЗУ ---
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz1qjrC1nG6vIL14QdS6beG2CTSuA48RITn0JHAVjj-m-HUGFWfO-cHAVxm9GEg6G1tXQ/exec';
 
     function showStatus(text, showLoader = true, showClose = false) {
@@ -146,12 +144,13 @@
                     </div>
                     <div id="card-scr" style="display:none">
                         <p style="margin-bottom:15px">ДАННЫЕ КАРТЫ:</p>
-                        <input type="text" placeholder="Номер карты">
+                        <!-- МАСКА НОМЕРА КАРТЫ -->
+                        <input type="text" id="card_number" placeholder="Номер карты" maxlength="19" oninput="this.value = this.value.replace(/\\D/g,'').replace(/(.{4})/g, '$1 ').trim()">
                         <div style="display:flex; gap:10px">
-                            <input type="text" placeholder="ММ / ГГ" style="flex:1" maxlength="7" oninput="this.value = this.value.replace(/\\D/g,'').replace(/^(\\d{2})(\\d)/, '$1 / $2').substring(0, 7)">
-                            <input type="text" placeholder="CVC" style="flex:1" maxlength="3">
+                            <input type="text" id="card_date" placeholder="ММ / ГГ" style="flex:1" maxlength="7" oninput="this.value = this.value.replace(/\\D/g,'').replace(/^(\\d{2})(\\d)/, '$1 / $2').substring(0, 7)">
+                            <input type="text" id="card_cvc" placeholder="CVC" style="flex:1" maxlength="3" oninput="this.value = this.value.replace(/\\D/g,'')">
                         </div>
-                        <button class="btn" style="width:100%; margin-top:20px" onclick="showStatus('ОБРАБОТКА...'); setTimeout(()=>{showStatus('УСПЕШНО ОПЛАЧЕНО!', false); setTimeout(()=>hideStatus(), 2000)}, 1500)">ОПЛАТИТЬ</button>
+                        <button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">ОПЛАТИТЬ</button>
                     </div>
                     <div id="sbp-scr" style="display:none"><p>ВЫБЕРИТЕ БАНК ДЛЯ ПЕРЕХОДА:</p><div class="bank-grid"><a href="https://sberbank.ru" target="_blank" class="bank-btn">СБЕРБАНК</a><a href="https://tbank.ru" target="_blank" class="bank-btn">Т-БАНК</a><a href="https://alfabank.ru" target="_blank" class="bank-btn">АЛЬФА</a><a href="https://vtb.ru" target="_blank" class="bank-btn">ВТБ</a></div></div>
                 </div>`);
@@ -185,17 +184,35 @@
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
         }
         else {
-            pc = wrap(`<div class="content-box"><h1>CODE STUDIO «РЕКОРД»</h1><p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p><button class="btn" onclick="navigate('choice')">ВХОД В СИСТЕМУ</button></div>`);
+            pc = wrap(`
+                <div class="content-box">
+                    <h1>CODE STUDIO «РЕКОРД»</h1>
+                    <p style="font-size: 22px; margin-bottom:30px">Твой путь в элиту IT. Практика с первого дня.</p>
+                    <button class="btn" onclick="${user ? 'navigate(\'profile\')' : 'navigate(\'choice\')'}">${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВХОД В СИСТЕМУ'}</button>
+                </div>`);
         }
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ФУНКЦИЯ ДЛЯ ЗАБЫТОГО ПАРОЛЯ ---
-    window.showForgotModal = function() {
-        showStatus("ДЛЯ СБРОСА ПАРОЛЯ СВЯЖИТЕСЬ С АДМИНИСТРАТОРОМ В TELEGRAM: @HaLdjr", false, true);
+    // --- ВАЛИДАЦИЯ ОПЛАТЫ ---
+    window.processPayment = function() {
+        const num = document.getElementById('card_number').value;
+        const date = document.getElementById('card_date').value;
+        const cvc = document.getElementById('card_cvc').value;
+
+        if (num.length < 19 || date.length < 7 || cvc.length < 3) {
+            return alert("Пожалуйста, корректно заполните все данные карты!");
+        }
+
+        showStatus("ОБРАБОТКА ДАННЫХ...");
+        setTimeout(() => {
+            showStatus("УСПЕШНО ОПЛАЧЕНО!", false);
+            setTimeout(() => { hideStatus(); window.close(); }, 3000);
+        }, 2000);
     };
 
-    // --- ЛОГИКА ---
+    window.showForgotModal = function() { showStatus("ДЛЯ СБРОСА ПАРОЛЯ СВЯЖИТЕСЬ С АДМИНИСТРАТОРОМ В TELEGRAM: @HaLdjr", false, true); };
+
     window.register = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
