@@ -66,10 +66,10 @@
 <div id="content"></div>
 
 <script>
-    // --- ПАРАМЕТРЫ ТВОЕЙ БАЗЫ ---
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyPnN9voReMouaoQgr6Mv64KLRhiBqtVzv1IpEUxaHk7id7uKv6JyP8-B5lx8ehSithMQ/exec';
+    // --- ТВОЯ НОВАЯ ССЫЛКА ---
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzBMrsJq-HFsIkBii2c5h-3Cjp_syX5-Ov3D0aoEIAwe7ltVLiOSaF-9dkii5VdvfsC/exec';
 
-    // --- ДВИЖОК НАВИГАЦИИ ---
+    // --- ДВИЖОК SPA ---
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         if (page === 'home') url.searchParams.delete('page');
@@ -161,7 +161,7 @@
                 <div class="content-box">
                     <h1>КАБИНЕТ</h1>
                     <p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p>
-                    <p style="color:#8b949e">Почта: ${user?.ema}</p>
+                    <p style="color:#8b949e">Email: ${user?.ema}</p>
                     <button class="btn" onclick="logout()">ВЫЙТИ</button>
                 </div>`);
         }
@@ -182,7 +182,7 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА БАЗЫ ДАННЫХ ---
+    // --- ЛОГИКА ---
     window.register = function() {
         const f = document.getElementById('rFio').value, 
               l = document.getElementById('rLog').value, 
@@ -191,33 +191,34 @@
 
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
 
-        // Отправка в Google Таблицу
         fetch(SHEET_URL, {
             method: 'POST',
-            mode: 'no-cors', 
+            mode: 'no-cors',
             body: JSON.stringify({fio: f, login: l, ema: e, pass: p})
         }).then(() => {
-            // Сохраняем также локально для входа
-            let db = JSON.parse(localStorage.getItem('cloud_db') || '[]');
-            db.push({fio: f, login: l, ema: e, pass: p});
-            localStorage.setItem('cloud_db', JSON.stringify(db));
-            
-            alert("Регистрация успешна! Данные сохранены в таблицу.");
+            alert("Регистрация успешна! Данные отправлены в Google Таблицу.");
             navigate('login');
         }).catch(() => alert("Ошибка соединения с базой"));
     };
 
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
-        let db = JSON.parse(localStorage.getItem('cloud_db') || '[]');
-        const user = db.find(u => u.login === l && u.pass === p);
+        if(!l || !p) return alert("Введите логин и пароль!");
         
-        if (user) {
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            navigate('profile');
-        } else {
-            alert("Пользователь не найден в этом браузере. Если вы регистрировались с другого устройства, база синхронизируется позже.");
-        }
+        alert("Проверка данных в Google Таблице... Пожалуйста, подождите.");
+
+        fetch(SHEET_URL)
+            .then(res => res.json())
+            .then(users => {
+                const user = users.find(u => String(u.login) === l && String(u.pass) === p);
+                if (user) {
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                    navigate('profile');
+                } else {
+                    alert("Ошибка: Пользователь не найден или данные неверны!");
+                }
+            })
+            .catch(() => alert("Ошибка связи с базой данных (проверьте интернет)"));
     };
 
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
