@@ -42,7 +42,6 @@
         .content-box { background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid rgba(0, 119, 255, 0.3); width: 100%; max-width: 900px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
         h1 { font-family: 'Consolas', monospace; text-transform: uppercase; letter-spacing: 4px; color: var(--neon); margin-bottom: 25px; font-size: 32px; }
 
-        /* Курсы */
         .course-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 850px; margin-top: 30px; }
         .course-card { background: var(--card-bg); border: 1px solid rgba(0, 119, 255, 0.4); border-radius: 15px; padding: 35px; text-align: left; transition: var(--transit); cursor: pointer; }
         .course-card:hover { transform: translateY(-5px) scale(1.01); border-color: var(--neon); box-shadow: 0 15px 45px var(--neon-glow); }
@@ -71,10 +70,8 @@
         .pay-choice-grid { display: flex; gap: 20px; margin-top: 30px; width: 100%; }
         .pay-btn { flex: 1; padding: 30px; border: 1px solid #444; border-radius: 15px; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: bold; }
         .pay-btn:hover { border-color: var(--neon); box-shadow: 0 0 20px var(--neon-glow); }
-        .pay-btn i { font-size: 30px; }
-        
         .bank-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; width: 100%; }
-        .bank-item { padding: 15px; border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 10px; cursor: pointer; transition: 0.3s; background: #0a0c10; font-weight: bold; text-decoration: none; color: #fff; display: block; }
+        .bank-item { padding: 15px; border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 10px; cursor: pointer; transition: 0.3s; background: #0a0c10; font-weight: bold; text-decoration: none; color: #fff; display: block; text-align: center; }
         .bank-item:hover { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
     </style>
 </head>
@@ -90,6 +87,7 @@
 <div id="content"></div>
 
 <script>
+    // --- ССЫЛКА НА ТАБЛИЦУ ---
     const SHEET_URL = 'https://google.com';
 
     function showStatus(text, showLoader = true) {
@@ -98,7 +96,7 @@
         document.getElementById('status-loader').style.display = showLoader ? 'inline-block' : 'none';
     }
 
-    function hideStatus(delay = 1000) {
+    function hideStatus(delay = 500) {
         setTimeout(() => { document.getElementById('status-overlay').style.display = 'none'; }, delay);
     }
 
@@ -116,7 +114,6 @@
         window.scrollTo(0,0);
     };
 
-    // Функция для открытия оплаты в новой вкладке
     window.openPayment = function(name, price) {
         const url = `${window.location.origin}${window.location.pathname}?page=pay_selection&item=${encodeURIComponent(name)}&price=${encodeURIComponent(price)}`;
         window.open(url, '_blank');
@@ -133,14 +130,12 @@
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
 
         if (page === 'pay_selection') {
-            const item = urlParams.get('item');
-            const price = urlParams.get('price');
+            const item = urlParams.get('item'), price = urlParams.get('price');
             pc = wrap(`
                 <div class="content-box" style="max-width: 600px">
                     <h1>ОФОРМЛЕНИЕ</h1>
                     <p style="font-size: 20px; color: var(--neon); font-weight: bold;">${item}</p>
                     <p style="font-size: 24px; border-bottom: 1px solid #333; padding-bottom: 15px;">Сумма: ${price} ₽</p>
-                    
                     <div id="method-screen">
                         <p>ВЫБЕРИТЕ СПОСОБ ОПЛАТЫ:</p>
                         <div class="pay-choice-grid">
@@ -148,51 +143,39 @@
                             <div class="pay-btn" onclick="document.getElementById('sbp-screen').style.display='block'; document.getElementById('method-screen').style.display='none';">📲 СБП</div>
                         </div>
                     </div>
-
                     <div id="card-screen" style="display:none">
-                        <input type="text" placeholder="0000 0000 0000 0000">
-                        <div style="display:flex; gap:10px"><input type="text" placeholder="ММ/ГГ"><input type="text" placeholder="CVC"></div>
-                        <button class="btn" style="width:100%; margin-top:20px" onclick="alert('Платеж обрабатывается...')">ОПЛАТИТЬ КАРТОЙ</button>
+                        <input type="text" placeholder="Номер карты"><div style="display:flex; gap:10px"><input type="text" placeholder="ММ/ГГ"><input type="text" placeholder="CVC"></div>
+                        <button class="btn" style="width:100%; margin-top:20px" onclick="alert('Обработка...')">ОПЛАТИТЬ</button>
                     </div>
-
                     <div id="sbp-screen" style="display:none">
-                        <p>ВЫБЕРИТЕ ВАШ БАНК ДЛЯ ПЕРЕХОДА:</p>
+                        <p>ВЫБЕРИТЕ БАНК:</p>
                         <div class="bank-list">
                             <a href="https://sberbank.ru" target="_blank" class="bank-item">СБЕРБАНК</a>
                             <a href="https://tbank.ru" target="_blank" class="bank-item">Т-БАНК</a>
-                            <a href="https://alfabank.ru" target="_blank" class="bank-item">АЛЬФА-БАНК</a>
+                            <a href="https://alfabank.ru" target="_blank" class="bank-item">АЛЬФА</a>
                             <a href="https://vtb.ru" target="_blank" class="bank-item">ВТБ</a>
                         </div>
                     </div>
                 </div>`);
         }
         else if (page === 'about') {
-            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
+            pc = wrap(`<div class="content-box"><h1>О СТУДИИ</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах.</p></div>`);
         } 
         else if (page === 'services') {
             pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
-                <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')">
-                    <h2>Python Developer Pro</h2><div class="price">45 000 ₽ / 6 месяцев</div>
-                    <div class="info">Глубокое изучение синтаксиса, бэкенд-разработка на Django и FastAPI. Работа с базами данных PostgreSQL.</div>
-                </div>
-                <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')">
-                    <h2>Neural Networks & AI</h2><div class="price">65 000 ₽ / 9 месяцев</div>
-                    <div class="info">От основ Data Science до обучения современных LLM. Работа с PyTorch и NLP.</div>
-                </div>
-                <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')">
-                    <h2>Cyber Security Expert</h2><div class="price">80 000 ₽ / 12 месяцев</div>
-                    <div class="info">Этичный хакинг, реверс-инжиниринг и защита облачных инфраструктур.</div>
-                </div>
+                <div class="course-card" onclick="openPayment('Python Developer Pro', '45 000')"><h2>Python Developer Pro</h2><div class="price">45 000 ₽</div><div class="info">Backend на Django и FastAPI. Работа с PostgreSQL.</div></div>
+                <div class="course-card" onclick="openPayment('Neural Networks & AI', '65 000')"><h2>Neural Networks & AI</h2><div class="price">65 000 ₽</div><div class="info">Обучение современных LLM и NLP.</div></div>
+                <div class="course-card" onclick="openPayment('Cyber Security Expert', '80 000')"><h2>Cyber Security Expert</h2><div class="price">80 000 ₽</div><div class="info">Этичный хакинг и защита инфраструктур.</div></div>
             </div>`);
         }
         else if (page === 'register') {
             pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="register()">СОЗДАТЬ</button></div>`);
         } 
         else if (page === 'login') {
-            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div>`);
+            pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div>`);
         }
         else if (page === 'profile') {
-            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p style="color:#8b949e">Почта: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
+            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p style="font-size: 22px;">Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><p>Email: ${user?.ema}</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
         }
         else if (page === 'choice') {
             pc = wrap(`<div class="content-box"><h1>ДОСТУП</h1><button class="btn" onclick="navigate('login')">ЛОГИН</button><button class="btn" onclick="navigate('register')">РЕГИСТРАЦИЯ</button></div>`);
@@ -203,27 +186,45 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА ---
+    // --- ФИКС ЛОГИКИ ТАБЛИЦ ---
     window.register = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return alert("Заполните все поля!");
+
         showStatus("РЕГИСТРАЦИЯ...");
-        fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({fio: f, login: l, ema: e, pass: p}) })
-        .then(() => { showStatus("УСПЕШНАЯ РЕГИСТРАЦИЯ!", false); setTimeout(() => { hideStatus(0); navigate('login'); }, 1500); });
+
+        fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({fio: f, login: l, ema: e, pass: p})
+        }).then(() => {
+            // Маленькая пауза для гарантии записи в Google
+            setTimeout(() => {
+                showStatus("УСПЕШНАЯ РЕГИСТРАЦИЯ!", false);
+                setTimeout(() => { hideStatus(); navigate('login'); }, 1500);
+            }, 500);
+        }).catch(err => {
+            hideStatus(0);
+            alert("Ошибка сети!");
+        });
     };
 
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         if(!l || !p) return alert("Введите данные!");
         showStatus("ПРОВЕРКА ДАННЫХ...");
-        fetch(SHEET_URL).then(res => res.json()).then(users => {
+
+        fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(users => {
             const user = users.find(u => String(u.login) === l && String(u.pass) === p);
             if (user) {
                 showStatus("УСПЕШНЫЙ ВХОД!", false);
                 sessionStorage.setItem('currentUser', JSON.stringify(user));
-                setTimeout(() => { hideStatus(0); navigate('profile'); }, 1500);
-            } else { hideStatus(0); alert("Ошибка: Пользователь не найден!"); }
-        }).catch(() => { hideStatus(0); alert("Ошибка связи"); });
+                setTimeout(() => { hideStatus(); navigate('profile'); }, 1500);
+            } else { hideStatus(0); alert("Ошибка: Данные неверны или аккаунт удален!"); }
+        }).catch(() => { hideStatus(0); alert("Ошибка связи с базой"); });
     };
 
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
