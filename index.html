@@ -52,12 +52,12 @@
         .bank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; width: 100%; }
         .bank-btn { padding: 20px; border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 12px; cursor: pointer; transition: 0.3s; background: #0a0c10; font-weight: bold; text-decoration: none; color: #fff; display: block; text-align: center; }
         .bank-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 <div id="status-overlay"><div class="status-card"><div id="status-text" style="font-family:Consolas; font-size:18px; text-transform:uppercase;"></div><div id="status-loader" style="margin-top:20px;"><div style="width:40px; height:40px; border:4px solid #111; border-top:4px solid var(--neon); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block;"></div></div><button id="status-close" class="btn" style="display:none; margin-top:25px; font-size:12px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button></div></div>
 <div id="content"></div>
-<style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 <script>
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwP9AX2NA6AuGhxyZFD-OVSvPnEb1WDsmvBBWEtoT0lu81JEDvq50mnLYuxfa05la-QEw/exec';
     let safetyTimer;
@@ -82,54 +82,25 @@
 
     function render() {
         const urlParams = new URLSearchParams(window.location.search), page = urlParams.get('page'), contentDiv = document.getElementById('content'), user = JSON.parse(sessionStorage.getItem('currentUser'));
-        
-        // НАВИГАЦИЯ — ПРОВЕРЬ ТУТ 'about' и 'contacts'
         const nav = `<nav><div class="logo" onclick="navigate('home')">🖥️ РЕКОРД</div><div class="nav-links"><a onclick="navigate('home')">Главная</a><a onclick="navigate('about')">О нас</a><a onclick="navigate('services')">Курсы</a><a onclick="navigate('contacts')">Контакты</a></div><div class="nav-auth">${user ? `<a onclick="navigate('profile')">ПРОФИЛЬ</a>` : `<a onclick="navigate('choice')">ВОЙТИ</a>`}</div></nav>`;
         let pc = ""; const wrap = (c) => `<div class="sub-page"><div class="animate-page">${c}</div></div>`;
 
         if (page === 'about') {
-            pc = wrap(`
-                <div class="content-box">
-                    <h1>О СТУДИИ «РЕКОРД»</h1>
-                    <p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">
-                        Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>
-                        Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах. Мы убрали скучные лекции, оставив только суровую практику, которая встречается в реальных проектах уровня Яндекса или Google.
-                    </p>
-                    <h2>Почему выбирают нас?</h2>
-                    <div style="text-align:left; margin-top:20px;">
-                        <p>✅ <b>Инженерный стек:</b> Учим не просто языку, а инструментам (Docker, Kubernetes, CI/CD).</p>
-                        <p>✅ <b>Карьерный центр:</b> Составляем резюме и готовим к собеседованиям в IT-гиганты.</p>
-                        <p>✅ <b>Живое комьюнити:</b> Доступ в закрытый чат с менторами из индустрии.</p>
-                    </div>
-                </div>`);
+            pc = wrap(`<div class="content-box"><h1>О СТУДИИ «РЕКОРД»</h1><p style="line-height:1.8; font-size: 19px; text-align: justify; color: #ffffff;">Code Studio «РЕКОРД» — это инновационная образовательная платформа, созданная для подготовки специалистов мирового уровня. Мы не просто учим писать код, мы формируем инженерное мышление. <br><br>Наши программы разработаны совместно с ведущими архитекторами из BigTech компаний. Мы используем метод полного погружения: 20% теории и 80% интенсивной практики на реальных кейсах. Мы убрали скучные лекции, оставив только суровую практику, которая встречается в реальных проектах уровня Яндекса или Google.</p><h2>Почему выбирают нас?</h2><div style="text-align:left; margin-top:20px;"><p>✅ <b>Инженерный стек:</b> Учим не просто языку, а инструментам (Docker, Kubernetes, CI/CD).</p><p>✅ <b>Карьерный центр:</b> Составляем резюме и готовим к собеседованиям в IT-гиганты.</p><p>✅ <b>Живое комьюнити:</b> Доступ в закрытый чат с менторами из индустрии.</p></div></div>`);
         } 
         else if (page === 'services') {
             pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1><div class="course-grid">
-                    <div class="course-card" onclick="window.openPayment('Python Developer Pro', '45 000')">
-                        <h3>Python Developer Pro</h3><span class="price">45 000 ₽ | 6 месяцев</span>
-                        <ul><li><b>Backend:</b> Django 4, FastAPI, REST API и асинхронность.</li><li><b>Data:</b> PostgreSQL, Redis, работа с базами под нагрузкой.</li><li><b>Итог:</b> Создание полноценного маркетплейса с нуля.</li></ul>
-                        <div style="margin-top:15px"><span class="tag">Django</span><span class="tag">FastAPI</span><span class="tag">SQL</span></div>
-                    </div>
-                    <div class="course-card" onclick="window.openPayment('Neural Networks & AI', '65 000')">
-                        <h3>Neural Networks & AI</h3><span class="price">65 000 ₽ | 9 месяцев</span>
-                        <ul><li><b>Math:</b> Основы статистики и линейной алгебры.</li><li><b>Models:</b> Обучение собственных LLM и работа с PyTorch.</li><li><b>Итог:</b> Нейросеть-помощник, интегрированная в бизнес-систему.</li></ul>
-                        <div style="margin-top:15px"><span class="tag">PyTorch</span><span class="tag">OpenCV</span><span class="tag">AI</span></div>
-                    </div>
-                    <div class="course-card" onclick="window.openPayment('Cyber Security Expert', '80 000')">
-                        <h3>Cyber Security Expert</h3><span class="price">80 000 ₽ | 12 месяцев</span>
-                        <ul><li><b>Exploits:</b> Этичный хакинг и поиск уязвимостей в коде.</li><li><b>Defense:</b> Настройка безопасности корпоративных сетей.</li><li><b>Итог:</b> Полный аудит безопасности IT-инфраструктуры компании.</li></ul>
-                        <div style="margin-top:15px"><span class="tag">Kali</span><span class="tag">Pentest</span><span class="tag">ZeroTrust</span></div>
-                    </div>
+                    <div class="course-card" onclick="window.openPayment('Python Developer Pro', '45 000')"><h3>Python Developer Pro</h3><span class="price">45 000 ₽ | 6 месяцев</span><ul><li><b>Backend:</b> Django 4, FastAPI, REST API и асинхронность.</li><li><b>Data:</b> PostgreSQL, Redis, работа с базами под нагрузкой.</li><li><b>Итог:</b> Создание полноценного маркетплейса с нуля.</li></ul><div style="margin-top:15px"><span class="tag">Django</span><span class="tag">FastAPI</span><span class="tag">SQL</span></div></div>
+                    <div class="course-card" onclick="window.openPayment('Neural Networks & AI', '65 000')"><h3>Neural Networks & AI</h3><span class="price">65 000 ₽ | 9 месяцев</span><ul><li><b>Math:</b> Основы статистики и линейной алгебры.</li><li><b>Models:</b> Обучение собственных LLM и работа с PyTorch.</li><li><b>Итог:</b> Нейросеть-помощник, интегрированная в бизнес-систему.</li></ul><div style="margin-top:15px"><span class="tag">PyTorch</span><span class="tag">OpenCV</span><span class="tag">AI</span></div></div>
+                    <div class="course-card" onclick="window.openPayment('Cyber Security Expert', '80 000')"><h3>Cyber Security Expert</h3><span class="price">80 000 ₽ | 12 месяцев</span><ul><li><b>Exploits:</b> Этичный хакинг и поиск уязвимостей в коде.</li><li><b>Defense:</b> Настройка безопасности корпоративных сетей.</li><li><b>Итог:</b> Полный аудит безопасности IT-инфраструктуры компании.</li></ul><div style="margin-top:15px"><span class="tag">Kali</span><span class="tag">Pentest</span><span class="tag">ZeroTrust</span></div></div>
                 </div>`);
         }
         else if (page === 'contacts') {
-            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 20px; margin-bottom:20px;">На связи 24/7 для вашей поддержки.</p>
-                <p>🔹 Telegram: <a href="https://t.me" style="color:var(--neon);">@HaLdjr</a></p>
-                <p>🔹 Email: support@record.it</p></div>`);
+            pc = wrap(`<div class="content-box"><h1>СВЯЗЬ</h1><p style="font-size: 20px; margin-bottom:20px;">На связи 24/7 для вашей поддержки.</p><p>🔹 Telegram: <a href="https://t.me" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p><p>🔹 Email: support@record.it</p></div>`);
         }
         else if (page === 'register') {
             pc = wrap(`<div class="form-container" id="reg-box"><h1>РЕГИСТРАЦИЯ</h1><input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль"><button class="btn" onclick="checkUnique()">ПОЛУЧИТЬ КОД</button></div>
-                       <div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="Код из письма" maxlength="6"><button class="btn" onclick="finishReg()">СОЗДАТЬ</button></div>`);
+                       <div class="form-container" id="verify-box" style="display:none"><h1>ПОДТВЕРЖДЕНИЕ</h1><p style="font-size:14px; margin-bottom:15px">Код отправлен на почту</p><input type="text" id="vCode" placeholder="Код из письма" maxlength="6"><button class="btn" onclick="finishReg()">СОЗДАТЬ АККАУНТ</button></div>`);
         } 
         else if (page === 'login') {
             pc = wrap(`<div class="form-container"><h1>ВХОД</h1><input type="text" id="lLog" placeholder="Логин"><input type="password" id="lPas" placeholder="Пароль"><button class="btn" onclick="login()">ВОЙТИ</button></div>`);
@@ -146,28 +117,20 @@
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- ЛОГИКА РЕГИСТРАЦИИ С ПРОВЕРКОЙ ---
+    // --- ЛОГИКА ---
     window.checkUnique = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
-        window.regData = {f, l, e, p}; 
-        showStatus("ПРОВЕРКА ДАННЫХ...");
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?callback=onCheckResult&t=${Date.now()}`;
-        document.body.appendChild(s);
+        window.regData = {f, l, e, p}; showStatus("ПРОВЕРКА ДАННЫХ...");
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?callback=onCheckRes&t=${Date.now()}`; document.body.appendChild(s);
     };
 
-    window.onCheckResult = function(users) {
-        const emailTaken = users.find(u => String(u.ema).toLowerCase() === window.regData.e.toLowerCase());
-        const loginTaken = users.find(u => String(u.login).toLowerCase() === window.regData.l.toLowerCase());
-        if(emailTaken) return showStatus("ЭТА ПОЧТА УЖЕ ЗАНЯТА!", false, true);
-        if(loginTaken) return showStatus("ЭТОТ ЛОГИН УЖЕ ЗАНЯТ!", false, true);
-        
+    window.onCheckRes = function(users) {
+        if(users.find(u => String(u.ema).toLowerCase() === window.regData.e.toLowerCase())) return showStatus("ЭТА ПОЧТА УЖЕ ЗАНЯТА!", false, true);
+        if(users.find(u => String(u.login).toLowerCase() === window.regData.l.toLowerCase())) return showStatus("ЭТОТ ЛОГИН УЖЕ ЗАНЯТ!", false, true);
         showStatus("ОТПРАВЛЯЕМ КОД...");
         window.generatedCode = Math.floor(100000 + Math.random() * 900000);
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?method=sendCode&ema=${encodeURIComponent(window.regData.e)}&code=${window.generatedCode}&callback=onCodeSent&t=${Date.now()}`;
-        document.body.appendChild(s);
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?method=sendCode&ema=${encodeURIComponent(window.regData.e)}&code=${window.generatedCode}&callback=onCodeSent&t=${Date.now()}`; document.body.appendChild(s);
     };
 
     window.onCodeSent = () => { hideStatus(); document.getElementById('reg-box').style.display = 'none'; document.getElementById('verify-box').style.display = 'block'; };
@@ -175,9 +138,7 @@
     window.finishReg = function() {
         if(document.getElementById('vCode').value != window.generatedCode) return showStatus("НЕВЕРНЫЙ КОД!", false, true);
         showStatus("РЕГИСТРАЦИЯ...");
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(window.regData.f)}&login=${encodeURIComponent(window.regData.l)}&ema=${encodeURIComponent(window.regData.e)}&pass=${encodeURIComponent(window.regData.p)}&callback=onRegOk&t=${Date.now()}`;
-        document.body.appendChild(s);
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(window.regData.f)}&login=${encodeURIComponent(window.regData.l)}&ema=${encodeURIComponent(window.regData.e)}&pass=${encodeURIComponent(window.regData.p)}&callback=onRegOk&t=${Date.now()}`; document.body.appendChild(s);
     };
 
     window.onRegOk = () => { showStatus("УСПЕШНО!", false); setTimeout(() => { hideStatus(); navigate('login'); }, 1500); };
@@ -186,12 +147,10 @@
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
         if(!l || !p) return showStatus("ВВЕДИТЕ ДАННЫЕ!", false, true);
         showStatus("ПРОВЕРКА..."); window.tempL = l; window.tempP = p;
-        const s = document.createElement('script');
-        s.src = `${SHEET_URL}?callback=onLoginResult&t=${Date.now()}`;
-        document.body.appendChild(s);
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?callback=onLoginRes&t=${Date.now()}`; document.body.appendChild(s);
     };
 
-    window.onLoginResult = (users) => {
+    window.onLoginRes = (users) => {
         const u = users.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP);
         if(u) { showStatus("УСПЕШНЫЙ ВХОД!", false); sessionStorage.setItem('currentUser', JSON.stringify(u)); setTimeout(() => { hideStatus(); navigate('profile'); }, 1500); }
         else { showStatus("ОШИБКА: ДАННЫЕ НЕВЕРНЫ!", false, true); }
