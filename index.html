@@ -61,11 +61,10 @@
         .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 50px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); max-width: 90%; }
         .loader { margin-top: 25px; width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* SBP List Style */
-        .sbp-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .sbp-item { padding: 15px; border: 1px solid #333; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 14px; font-weight: bold; }
-        .sbp-item:hover { border-color: var(--neon); background: rgba(0,119,255,0.1); color: var(--neon); }
+        
+        /* Стили для банков в СБП */
+        .bank-option { padding: 15px; border: 1px solid #333; margin: 5px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; font-weight: bold; }
+        .bank-option:hover { border-color: var(--neon); color: var(--neon); background: rgba(0, 119, 255, 0.1); }
     </style>
 </head>
 <body>
@@ -80,7 +79,7 @@
     <div id="content"></div>
 <script>
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzFIi_kNeOM3GByJ8hsTKRtTelHn28JgiKI6KE0CZ-JSewCD94rKvlF0-smt35MPutN9Q/exec';
-    const QR_URL = "http://qrcoder.ru/code/?https%3A%2F%2Fencrypted-tbn0.gstatic.com%2Fimages%3Fq%3Dtbn%3AANd9GcQ3wCvdNY1pPJicrDV0nbeeTBr-5bksabuzKQ%26s&4&0";
+    const QR_IMAGE = "http://qrcoder.ru/code/?https%3A%2F%2Fencrypted-tbn0.gstatic.com%2Fimages%3Fq%3Dtbn%3AANd9GcQ3wCvdNY1pPJicrDV0nbeeTBr-5bksabuzKQ%26s&4&0";
 
     function showStatus(text, showLoader = true, showClose = false) {
         document.getElementById('status-overlay').style.display = 'flex';
@@ -94,6 +93,19 @@
         setTimeout(() => { document.getElementById('status-overlay').style.display = 'none'; }, delay);
     }
 
+    // Показ QR при выборе банка
+    window.selectSbpBank = function(bankName) {
+        const extra = document.getElementById('status-extra');
+        extra.innerHTML = `
+            <div style="margin-top:20px; border: 1px solid var(--neon); padding: 20px; border-radius: 15px;">
+                <p style="color:var(--neon)">ОПЛАТА ЧЕРЕЗ ${bankName}</p>
+                <img src="${QR_IMAGE}" width="196" height="196" style="border: 5px solid white; border-radius: 5px; margin: 15px 0;">
+                <p style="font-size:12px; color:#888;">Отсканируйте QR в приложении банка</p>
+                <button class="btn" style="margin-top:15px; width:100%; font-size:12px;" onclick="showStatus('ПРОВЕРКА...', true); setTimeout(() => showStatus('ОПЛАТА ПРИНЯТА', false, true), 1500)">Я ОПЛАТИЛ</button>
+            </div>
+        `;
+    }
+
     window.navigate = function(page, params = {}) {
         const url = new URL(window.location);
         url.searchParams.forEach((v, k) => url.searchParams.delete(k));
@@ -103,40 +115,26 @@
         window.scrollTo(0,0);
     };
 
-    // Функция выбора банка с показом QR
-    window.selectBank = function(bank) {
-        const extra = document.getElementById('status-extra');
-        extra.innerHTML = `
-            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid var(--neon);">
-                <p style="color: var(--neon); margin-bottom: 15px;">ОПЛАТА ЧЕРЕЗ: ${bank}</p>
-                <img src="${QR_URL}" width="196" height="196" style="border: 4px solid white; border-radius: 10px;">
-                <p style="font-size: 11px; color: #888; margin-top: 10px;">Отсканируйте код в приложении</p>
-                <button class="btn" style="margin-top:20px; width:100%" onclick="showStatus('ПРОВЕРКА ОПЛАТЫ...', true); setTimeout(() => showStatus('ДОСТУП ПРЕДОСТАВЛЕН!', false, true), 2000)">Я ОПЛАТИЛ</button>
-            </div>
-        `;
-    };
-
     window.openPayment = function(name, price) {
         const user = JSON.parse(sessionStorage.getItem('currentUser'));
         if(!user) {
             showStatus("НЕОБХОДИМА АВТОРИЗАЦИЯ", false, false);
             document.getElementById('status-extra').innerHTML = `
                 <button class="btn" onclick="hideStatus(0); navigate('login')">ВОЙТИ</button>
-                <button class="btn" style="border-color:#555; color:#888" onclick="hideStatus(0)">ОТМЕНА</button>`;
+                <button class="btn" style="border-color:#555; color:#888" onclick="hideStatus(0)">ЗАКРЫТЬ</button>`;
             return;
         }
         
         showStatus(`КУРС: ${name.toUpperCase()}`, false, false);
         document.getElementById('status-extra').innerHTML = `
-            <p style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">${price} ₽</p>
-            <p style="color: #888; font-size: 12px; margin-bottom: 20px;">ВЫБЕРИТЕ БАНК ДЛЯ ОПЛАТЫ СБП:</p>
-            <div class="sbp-list">
-                <div class="sbp-item" onclick="selectBank('СБЕР')">СБЕР</div>
-                <div class="sbp-item" onclick="selectBank('Т-БАНК')">Т-БАНК</div>
-                <div class="sbp-item" onclick="selectBank('АЛЬФА')">АЛЬФА</div>
-                <div class="sbp-item" onclick="selectBank('ВТБ')">ВТБ</div>
+            <p style="font-size:20px; margin-bottom:15px;">К оплате: ${price} ₽</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                <div class="bank-option" onclick="selectSbpBank('СБЕР')">СБЕР</div>
+                <div class="bank-option" onclick="selectSbpBank('Т-БАНК')">Т-БАНК</div>
+                <div class="bank-option" onclick="selectSbpBank('АЛЬФА')">АЛЬФА</div>
+                <div class="bank-option" onclick="selectSbpBank('ВТБ')">ВТБ</div>
             </div>
-            <button class="btn" style="margin-top:25px; border-color:#555; color:#888; width: 100%; font-size: 11px;" onclick="hideStatus(0)">ОТМЕНИТЬ</button>
+            <button class="btn" style="margin-top:20px; border-color:#333; color:#555; font-size:10px" onclick="hideStatus(0)">ОТМЕНА</button>
         `;
     };
 
@@ -189,8 +187,8 @@
                     <div class="stat-square"><span>94%</span><p>Трудоустройство</p></div>
                     <div class="stat-square"><span>250к</span><p>Ср. зарплата</p></div>
                 </div>
-                <h1 style="font-size: 48px;">STUDIO РЕКОРД</h1>
-                <button class="btn" onclick="navigate('services')">НАЧАТЬ ОБУЧЕНИЕ</button>
+                <h1>STUDIO РЕКОРД</h1>
+                <button class="btn" onclick="navigate('services')">НАЧАТЬ</button>
             `);
         }
         contentDiv.innerHTML = pc;
