@@ -66,19 +66,15 @@
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; background: rgba(0,0,0,0.8); border: 1px solid #555; color: white; border-radius: 8px; font-size: 16px; transition: 0.2s; font-family: inherit; }
         input:focus { border-color: var(--neon); outline: none; }
 
-        .form-footer { margin-top: 20px; font-size: 13px; color: #8b949e; }
-        .form-footer a { color: var(--neon); text-decoration: none; font-weight: bold; cursor: pointer; }
-
         #status-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; justify-content: center; align-items: center; }
         .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 50px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); max-width: 90%; }
         .loader { margin-top: 25px; width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .pass-hint { color: #ff4444; font-size: 11px; text-align: left; margin: -5px 0 10px 5px; display: none; }
+        .pass-hint, #fioHint { color: #ff4444; font-size: 11px; text-align: left; margin: -5px 0 10px 5px; display: none; }
     </style>
 </head>
 <body>
-
 <div id="status-overlay">
     <div class="status-card">
         <div id="status-text"></div>
@@ -87,9 +83,7 @@
         <button id="status-close" class="btn" style="display:none; margin-top:25px; padding: 10px 30px; font-size: 13px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button>
     </div>
 </div>
-
 <div id="content"></div>
-
 <script>
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzFIi_kNeOM3GByJ8hsTKRtTelHn28JgiKI6KE0CZ-JSewCD94rKvlF0-smt35MPutN9Q/exec';
     let generatedCode = null;
@@ -165,9 +159,9 @@
                 <h1>О СТУДИИ «РЕКОРД»</h1>
                 <p style="color:#aaa; font-size:18px; margin-bottom:40px">Мы не учим хобби. Мы строим профессиональную карьеру.</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; width: 100%;">
-                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>80% ПРАКТИКИ</h3><p style="color:#888; font-size:14px">Весь процесс обучения на задачах уровня Middle. Никакой сухой теории - вы сразу погружаетесь в разработку реальных фич и сервисов.</p></div>
-                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>SENIOR МЕНТОРЫ</h3><p style="color:#888; font-size:14px">Ваш код проверяют практики из BigTech. Забудьте о формальных проверках. Вы получите детальный code review от инженеров.</p></div>
-                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>ЭЛИТНОЕ КОМЬЮНИТИ</h3><p style="color:#888; font-size:14px">Доступ в закрытый чат с инсайдами индустрии. Мы регулярно проводим закрытые митапы и сессии вопросов и ответов.</p></div>
+                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>80% ПРАКТИКИ</h3><p style="color:#888; font-size:14px">Весь процесс обучения на задачах уровня Middle. Никакой сухой теории.</p></div>
+                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>SENIOR МЕНТОРЫ</h3><p style="color:#888; font-size:14px">Ваш код проверяют практики из BigTech. Забудьте о формальных проверках.</p></div>
+                    <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>ЭЛИТНОЕ КОМЬЮНИТИ</h3><p style="color:#888; font-size:14px">Доступ в закрытый чат с инсайдами индустрии.</p></div>
                 </div>
             </div>`);
         } else if (page === 'contacts') {
@@ -181,8 +175,10 @@
             </div>`);
         } else if (page === 'register') {
             pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1>
-                <input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль">
-                <div id="passHint" class="pass-hint"></div>
+                <input type="text" id="rFio" placeholder="Полное ФИО"><div id="fioHint"></div>
+                <input type="text" id="rLog" placeholder="Логин">
+                <input type="email" id="rEma" placeholder="Email">
+                <input type="password" id="rPas" placeholder="Пароль"><div id="passHint" class="pass-hint"></div>
                 <button class="btn" style="width:100%; margin-left:0" onclick="startRegistration()">ОТПРАВИТЬ КОД</button>
                 <div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div>
             </div>`);
@@ -194,7 +190,7 @@
                 <div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a></div>
             </div>`);
         } else if (page === 'profile') {
-            const hasCourse = user?.activeCourse; // Проверяем куплен ли курс
+            const hasCourse = user?.activeCourse;
             pc = wrap(`
                 <div class="content-box" style="max-width: 1000px; text-align: left;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 30px;">
@@ -254,14 +250,21 @@
         }
         contentDiv.innerHTML = nav + pc;
     }
-
     window.showSbpQr = () => document.getElementById('qr-area').style.display = 'block';
 
     window.startRegistration = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        const hint = document.getElementById('passHint');
+        const fHint = document.getElementById('fioHint'), pHint = document.getElementById('passHint');
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
 
+        // ПРОВЕРКА ФИО: ТОЛЬКО КИРИЛЛИЦА
+        if(!/^[а-яА-ЯёЁ\s]+$/.test(f)) {
+            fHint.style.display = 'block';
+            fHint.innerText = "ОШИБКА: Используйте только русские буквы! Цифры и латиница запрещены.";
+            return;
+        } else { fHint.style.display = 'none'; }
+
+        // ВАЛИДАЦИЯ ПАРОЛЯ
         let errs = [];
         if(p.length < 8) errs.push("8+ символов");
         if(!/[A-Z]/.test(p)) errs.push("ЗАГЛАВНАЯ буква");
@@ -270,10 +273,10 @@
         if(!/[!@#$%^&*]/.test(p)) errs.push("спецсимвол (!@#...)");
 
         if(errs.length > 0) {
-            hint.style.display = 'block';
-            hint.innerText = "Ошибка: " + errs.join(", ");
+            pHint.style.display = 'block';
+            pHint.innerText = "Пароль слишком простой: " + errs.join(", ");
             return;
-        } else { hint.style.display = 'none'; }
+        } else { pHint.style.display = 'none'; }
 
         generatedCode = Math.floor(100000 + Math.random() * 900000);
         showStatus("ОТПРАВКА КОДА...");
@@ -329,7 +332,7 @@
             setTimeout(() => { hideStatus(); navigate('profile'); }, 2000); 
         }, 1500); 
     };
-    
+
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
     window.onpopstate = render;
     render();
