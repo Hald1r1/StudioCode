@@ -281,9 +281,29 @@
     }
 
     // СКРИПТЫ
-    window.sendEmailToMe = function() { 
-        showStatus("ОТПРАВКА..."); 
-        setTimeout(() => { showStatus("СООБЩЕНИЕ ОТПРАВЛЕНО!", false, true); }, 1000); 
+    window.sendEmailToMe = function() {
+        const e = document.getElementById('c_email').value;
+        const m = document.getElementById('c_msg').value;
+    
+        if(!e || !m) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
+    
+        showStatus("ОТПРАВКА СООБЩЕНИЯ...");
+    
+        // Отправляем запрос в Google Apps Script
+        const s = document.createElement('script');
+        s.src = `${SHEET_URL}?method=contact&email=${encodeURIComponent(e)}&msg=${encodeURIComponent(m)}&callback=contactOk`;
+        document.body.appendChild(s);
+    };
+    
+    // Ответ от сервера при успешной отправке
+    window.contactOk = (data) => {
+        if(data.status === 'ok') {
+            showStatus("СООБЩЕНИЕ ОТПРАВЛЕНО!", false, true);
+            document.getElementById('c_email').value = "";
+            document.getElementById('c_msg').value = "";
+        } else {
+            showStatus("ОШИБКА ОТПРАВКИ", false, true);
+        }
     };
 
     window.startRegistration = function() {
