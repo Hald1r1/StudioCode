@@ -6,11 +6,10 @@
     <title>Code Studio «РЕКОРД»</title>
     <link rel="icon" href="image.png" type="image/png">
     
-    <!-- Интеграция EmailJS для отправки писем -->
     <script type="text/javascript" src="https://jsdelivr.net"></script>
     <script type="text/javascript">
         (function(){
-            emailjs.init("YOUR_PUBLIC_KEY"); // Твой ключ из личного кабинета EmailJS
+            emailjs.init("YOUR_PUBLIC_KEY");
         })();
     </script>
 
@@ -62,7 +61,7 @@
         .course-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; width: 100%; margin-top: 30px; }
         .course-card { background: rgba(10, 12, 16, 0.95); border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 20px; padding: 35px; text-align: left; transition: var(--transit); cursor: pointer; display: flex; flex-direction: column; }
         .course-card:hover { border-color: var(--neon); box-shadow: 0 15px 40px var(--neon-glow); transform: translateY(-8px); }
-        .course-card h2 { color: var(--neon); font-size: 24px; margin: 0 0 12px; border-bottom: 1px solid rgba(0,119,255,0.2); padding-bottom: 10px; }
+        .course-card h2 { color: var(--neon); font-size: 24px; margin: 0 0 12px; border-bottom: 1px solid rgba(0, 119, 255, 0.2); padding-bottom: 10px; }
         .course-card .price { font-weight: bold; color: #fff; font-size: 20px; margin-bottom: 15px; display: block; }
         .course-card .details { font-size: 13px; line-height: 1.6; color: #bbb; flex-grow: 1; }
         .course-card .details b { color: var(--neon); display: block; margin-top: 10px; }
@@ -86,17 +85,8 @@
     </style>
 </head>
 <body>
-<div id="status-overlay">
-    <div class="status-card">
-        <div id="status-text"></div>
-        <div id="status-loader" class="loader"></div>
-        <div id="status-extra" style="margin-top: 20px;"></div>
-        <button id="status-close" class="btn" style="display:none; margin-top:25px; padding: 10px 30px; font-size: 13px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button>
-    </div>
-</div>
-
+<div id="status-overlay"><div class="status-card"><div id="status-text"></div><div id="status-loader" class="loader"></div><div id="status-extra" style="margin-top: 20px;"></div><button id="status-close" class="btn" style="display:none; margin-top:25px; padding: 10px 30px; font-size: 13px;" onclick="hideStatus(0)">ЗАКРЫТЬ</button></div></div>
 <div id="content"></div>
-
 <script>
     const SHEET_URL = 'https://google.com';
     let generatedCode = null;
@@ -182,8 +172,8 @@
                 <h1>СВЯЗЬ</h1>
                 <p style="font-size: 22px">Telegram: <a href="https://t.me" target="_blank" style="color:var(--neon); text-decoration:none;">@HaLdjr</a></p>
                 <div style="border-top:1px solid #333; margin-top:30px; padding-top:20px">
-                    <input type="email" id="contact_email" placeholder="Email">
-                    <textarea id="contact_msg" placeholder="Ваш вопрос..." rows="4"></textarea>
+                    <input type="email" id="c_email" placeholder="Email">
+                    <textarea id="c_msg" placeholder="Ваш вопрос..." rows="4"></textarea>
                     <button class="btn" style="width:100%; margin:10px 0" onclick="sendEmailToMe()">ОТПРАВИТЬ</button>
                 </div>
             </div>`);
@@ -264,127 +254,32 @@
         }
         contentDiv.innerHTML = nav + pc;
     }
-        } else if (page === 'order') {
-            const item = urlParams.get('item'), price = urlParams.get('price');
-            pc = wrap(`<div class="content-box" style="max-width: 650px">
-                <h1>ОФОРМЛЕНИЕ</h1>
-                <p style="color: var(--neon); font-weight: bold;">${item}</p>
-                <p style="font-size: 26px; border-bottom: 1px solid #222; padding-bottom: 20px;">${price} ₽</p>
-                <div id="pay-scr"><div style="display:flex; gap:20px; margin-top:20px"><button class="btn" style="flex:1" onclick="document.getElementById('card-scr').style.display='block'; document.getElementById('pay-scr').style.display='none'">💳 КАРТА</button><button class="btn" style="flex:1" onclick="document.getElementById('sbp-scr').style.display='block'; document.getElementById('pay-scr').style.display='none'">📲 СБП</button></div></div>
-                <div id="card-scr" style="display:none"><input type="text" id="card_number" placeholder="Номер карты" maxlength="19" oninput="this.value = this.value.replace(/\\D/g,'').replace(/(.{4})/g, '$1 ').trim()"><div style="display:flex; gap:10px"><input type="text" id="card_date" placeholder="ММ / ГГ" style="flex:1" maxlength="7" oninput="this.value = this.value.replace(/\\D/g,'').replace(/^(\\d{2})(\\d)/, '$1 / $2').substring(0, 7)"><input type="text" id="card_cvc" placeholder="CVC" style="flex:1" maxlength="3"></div><button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">ОПЛАТИТЬ</button></div>
-                <div id="sbp-scr" style="display:none"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><button class="btn" onclick="showSbpQr()">СБЕР</button><button class="btn" onclick="showSbpQr()">Т-БАНК</button></div><div id="qr-area" style="display:none; margin-top:30px; text-align:center;"><div style="background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 0 20px var(--neon-glow);"><img src="qr.png" width="196" height="196" style="display:block; margin: 0 auto;"><p style="color:#000; font-size:12px; margin-top:10px; font-weight:bold; font-family:sans-serif;">СКАНИРУЙТЕ ДЛЯ ОПЛАТЫ</p></div><button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">Я ОПЛАТИЛ</button></div></div>
-            </div>`);
-        } else {
-            pc = wrap(`<div class="content-box">
-                <h1>CODE STUDIO «РЕКОРД»</h1>
-                <p style="font-size: 20px; color:#888;">Твой путь в элиту IT. Практика с первого дня.</p>
-                <div class="info-stats">
-                    <div class="stat-square"><span>500+</span><p>Студентов</p></div>
-                    <div class="stat-square"><span>24/7</span><p>Менторство</p></div>
-                    <div class="stat-square"><span>94%</span><p>Офферов</p></div>
-                    <div class="stat-square"><span>TOP</span><p>Уровень PRO</p></div>
-                </div>
-                <div class="roadmap">
-                    <div class="step">ОСНОВЫ</div><div class="arrow">➔</div>
-                    <div class="step">ХАРД-ПРАКТИКА</div><div class="arrow">➔</div>
-                    <div class="step">РЕАЛЬНЫЙ КЕЙС</div><div class="arrow">➔</div>
-                    <div class="step">ОФФЕР</div>
-                </div>
-                <button class="btn" onclick="\${user ? 'navigate(\\'profile\\')' : 'navigate(\\'register\\')'}">\${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВСТУПИТЬ В СООБЩЕСТВО'}</button>
-            </div>`);
-        }
-        contentDiv.innerHTML = nav + pc;
-    }
 
     window.sendEmailToMe = function() {
-        const email = document.getElementById('contact_email').value;
-        const message = document.getElementById('contact_msg').value;
-        if(!email || !message) return showStatus("ЗАПОЛНИТЕ ПОЛЯ!", false, true);
+        const e = document.getElementById('c_email').value, m = document.getElementById('c_msg').value;
+        if(!e || !m) return showStatus("ЗАПОЛНИТЕ ПОЛЯ!", false, true);
         showStatus("ОТПРАВКА...");
-        const params = { from_email: email, message: message, to_email: "bluekrip32@gmail.com" };
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', params)
-            .then(() => {
-                showStatus("СООБЩЕНИЕ ОТПРАВЛЕНО!", false, true);
-                document.getElementById('contact_email').value = "";
-                document.getElementById('contact_msg').value = "";
-            }, (err) => {
-                showStatus("ОШИБКА СЕРВИСА", false, true);
-            });
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { from_email: e, message: m, to_email: "bluekrip32@gmail.com" })
+            .then(() => { showStatus("ОТПРАВЛЕНО!", false, true); }, () => { showStatus("ОШИБКА СЕРВИСА", false, true); });
     };
-
-    window.showSbpQr = () => document.getElementById('qr-area').style.display = 'block';
 
     window.startRegistration = function() {
         const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
-        const fHint = document.getElementById('fioHint'), pHint = document.getElementById('passHint');
-        if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
-        if(!/^[а-яА-ЯёЁ\\s]+$/.test(f)) {
-            fHint.style.display = 'block'; fHint.innerText = "ОШИБКА: Используйте только русские буквы!"; return;
-        } else { fHint.style.display = 'none'; }
-        let errs = [];
-        if(p.length < 8) errs.push("8+ символов");
-        if(!/[A-Z]/.test(p)) errs.push("ЗАГЛАВНАЯ буква");
-        if(!/[a-z]/.test(p)) errs.push("строчная буква");
-        if(!/[0-9]/.test(p)) errs.push("цифра");
-        if(!/[!@#$%^&*]/.test(p)) errs.push("спецсимвол (!@#...)");
-        if(errs.length > 0) {
-            pHint.style.display = 'block'; pHint.innerText = "Пароль слишком простой: " + errs.join(", "); return;
-        } else { pHint.style.display = 'none'; }
-        generatedCode = Math.floor(100000 + Math.random() * 900000);
-        showStatus("ОТПРАВКА КОДА...");
-        const s = document.createElement('script');
-        s.src = `\${SHEET_URL}?method=sendCode&email=\${encodeURIComponent(e)}&code=\${generatedCode}&callback=codeSent`;
-        document.body.appendChild(s);
-        window.regTemp = {f, l, e, p};
+        const fH = document.getElementById('fioHint'), pH = document.getElementById('passHint');
+        if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ПОЛЯ!", false, true);
+        if(!/^[а-яА-ЯёЁ\s]+$/.test(f)) { fH.style.display='block'; fH.innerText="ОШИБКА: Только русские буквы!"; return; } fH.style.display='none';
+        let errs = []; if(p.length < 8) errs.push("8+ симв."); if(!/[A-Z]/.test(p)) errs.push("Заглавная");
+        if(errs.length > 0) { pH.style.display='block'; pH.innerText="Слабый пароль: "+errs.join(", "); return; } pH.style.display='none';
+        generatedCode = Math.floor(100000 + Math.random() * 900000); showStatus("ОТПРАВКА КОДА...");
+        const s = document.createElement('script'); s.src = `${SHEET_URL}?method=sendCode&email=${encodeURIComponent(e)}&code=${generatedCode}&callback=codeSent`; document.body.appendChild(s); window.regTemp = {f, l, e, p};
     };
 
-    window.codeSent = () => {
-        showStatus("КОД ОТПРАВЛЕН", false);
-        document.getElementById('status-extra').innerHTML = \`<input type="text" id="vCode" placeholder="000000" style="text-align:center; width:200px; font-size:20px; letter-spacing:3px; margin:10px auto; display:block"><button class="btn" onclick="verifyAndReg()">ПОДТВЕРДИТЬ</button>\`;
-    };
-
-    window.verifyAndReg = () => {
-        if(document.getElementById('vCode').value == generatedCode) {
-            showStatus("СОЗДАНИЕ АККАУНТА...");
-            const {f, l, e, p} = window.regTemp;
-            const s = document.createElement('script');
-            s.src = `\${SHEET_URL}?method=register&fio=\${encodeURIComponent(f)}&login=\${encodeURIComponent(l)}&ema=\${encodeURIComponent(e)}&pass=\${encodeURIComponent(p)}&callback=regOk`;
-            document.body.appendChild(s);
-        } else { showStatus("НЕВЕРНЫЙ КОД!", false, true); }
-    };
-
+    window.codeSent = () => { showStatus("КОД ОТПРАВЛЕН", false); document.getElementById('status-extra').innerHTML = `<input type="text" id="vCode" placeholder="000000" style="text-align:center; width:200px; margin:10px auto; display:block"><button class="btn" onclick="verifyAndReg()">ПОДТВЕРДИТЬ</button>`; };
+    window.verifyAndReg = () => { if(document.getElementById('vCode').value == generatedCode) { showStatus("СОЗДАНИЕ..."); const {f,l,e,p} = window.regTemp; const s = document.createElement('script'); s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(f)}&login=${encodeURIComponent(l)}&ema=${encodeURIComponent(e)}&pass=${encodeURIComponent(p)}&callback=regOk`; document.body.appendChild(s); } };
     window.regOk = () => { showStatus("ГОТОВО!", false); setTimeout(() => { hideStatus(); navigate('login'); }, 1500); };
-
-    window.login = function() {
-        const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
-        if(!l || !p) return showStatus("ВВЕДИТЕ ДАННЫЕ!", false, true);
-        showStatus("ПРОВЕРКА...");
-        window.tempL = l; window.tempP = p;
-        const s = document.createElement('script');
-        s.src = `\${SHEET_URL}?callback=logOk`;
-        document.body.appendChild(s);
-    };
-
-    window.logOk = (users) => {
-        const u = users.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP);
-        if(u) { sessionStorage.setItem('currentUser', JSON.stringify(u)); showStatus("УСПЕШНО!", false); setTimeout(() => { hideStatus(); navigate('profile'); }, 1000); }
-        else { showStatus("ОШИБКА ДАННЫХ", false, true); }
-    };
-
-    window.processPayment = () => { 
-        showStatus("ОБРАБОТКА..."); 
-        setTimeout(() => { 
-            let user = JSON.parse(sessionStorage.getItem('currentUser'));
-            if(user) {
-                user.activeCourse = window.currentPayingItem || "Выбранный курс";
-                user.progress = "100%"; 
-                sessionStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            showStatus("ОПЛАЧЕНО!", false); 
-            setTimeout(() => { hideStatus(); navigate('profile'); }, 2000); 
-        }, 1500); 
-    };
-
+    window.login = function() { const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value; window.tempL = l; window.tempP = p; showStatus("ВХОД..."); const s = document.createElement('script'); s.src = `${SHEET_URL}?callback=logOk`; document.body.appendChild(s); };
+    window.logOk = (us) => { const u = us.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP); if(u) { sessionStorage.setItem('currentUser', JSON.stringify(u)); hideStatus(); navigate('profile'); } else showStatus("ОШИБКА", false, true); };
+    window.processPayment = () => { showStatus("ОБРАБОТКА..."); setTimeout(() => { let u = JSON.parse(sessionStorage.getItem('currentUser')); if(u) { u.activeCourse = window.currentPayingItem; u.progress = "100%"; sessionStorage.setItem('currentUser', JSON.stringify(u)); } showStatus("ОПЛАЧЕНО!", false); setTimeout(() => { hideStatus(); navigate('profile'); }, 2000); }, 1500); };
     window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
     window.onpopstate = render;
     render();
