@@ -91,11 +91,11 @@
 <div id="content"></div>
 
 <script>
-    // ССЫЛКА НА БАЗУ (ЗАМЕНИ НА СВОЮ ПОСЛЕ РАЗВЕРТЫВАНИЯ)
+    // Твоя ссылка на базу данных Google
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycby2aMqwqxNVv3PR44XiYjNMFH_Y2q_SuZCxvwwvaLFWI4Colao50QG-4aUcmvRTYdydoA/exec';
     let generatedCode = null;
 
-    // ФУНКЦИИ ИНТЕРФЕЙСА
+    // Вспомогательные функции интерфейса
     function showStatus(text, showLoader = true, showClose = false) {
         document.getElementById('status-overlay').style.display = 'flex';
         document.getElementById('status-text').innerText = text;
@@ -259,7 +259,7 @@
                 </div>
                 <div id="sbp-scr" style="display:none">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><button class="btn" onclick="document.getElementById('qr-area').style.display='block'">СБЕР</button><button class="btn" onclick="document.getElementById('qr-area').style.display='block'">Т-БАНК</button></div>
-                    <div id="qr-area" style="display:none; margin-top:30px; text-align:center;"><div style="background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 0 20px var(--neon-glow);"><img src="qr.png" width="196" height="196"><p style="color:#000; font-size:12px; margin-top:10px; font-weight:bold;">СКАНИРУЙТЕ ДЛЯ ОПЛАТЫ</p></div><button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">Я ОПЛАТИЛ</button></div>
+                    <div id="qr-area" style="display:none; margin-top:30px; text-align:center;"><div style="background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 0 20px var(--neon-glow);"><img src="qr.png" width="196" height="196" style="display:block; margin: 0 auto;"><p style="color:#000; font-size:12px; margin-top:10px; font-weight:bold;">СКАНИРУЙТЕ ДЛЯ ОПЛАТЫ</p></div><button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">Я ОПЛАТИЛ</button></div>
                 </div>
             </div>`);
         } 
@@ -280,13 +280,13 @@
                     <div class="step">РЕАЛЬНЫЙ КЕЙС</div><div class="arrow">➔</div>
                     <div class="step">ОФФЕР</div>
                 </div>
-                <button class="btn" onclick="\${user ? 'navigate(\\'profile\\')' : 'navigate(\\'register\\')'}">\${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВСТУПИТЬ В СООБЩЕСТВО'}</button>
+                <button class="btn" onclick="${user ? 'navigate(\'profile\')' : 'navigate(\'register\')'}">${user ? 'В ЛИЧНЫЙ КАБИНЕТ' : 'ВСТУПИТЬ В СООБЩЕСТВО'}</button>
             </div>`);
         }
         contentDiv.innerHTML = nav + pc;
     }
 
-    // --- СКРИПТЫ ВЗАИМОДЕЙСТВИЯ ---
+    // --- ФУНКЦИОНАЛЬНЫЕ СКРИПТЫ ---
 
     window.sendEmailToMe = function() {
         const e = document.getElementById('c_email').value;
@@ -294,7 +294,7 @@
         if(!e || !m) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
         showStatus("ОТПРАВКА СООБЩЕНИЯ...");
         const s = document.createElement('script');
-        s.src = `\${SHEET_URL}?method=contact&email=\${encodeURIComponent(e)}&msg=\${encodeURIComponent(m)}&callback=contactOk`;
+        s.src = `${SHEET_URL}?method=contact&email=${encodeURIComponent(e)}&msg=${encodeURIComponent(m)}&callback=contactOk`;
         document.body.appendChild(s);
     };
 
@@ -308,12 +308,10 @@
         const fHint = document.getElementById('fioHint'), pHint = document.getElementById('passHint');
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
 
-        // ЗАЩИТА ФИО: ТОЛЬКО КИРИЛЛИЦА
-        if(!/^[а-яА-ЯёЁ\\s]+$/.test(f)) {
-            fHint.style.display = 'block'; fHint.innerText = "Используйте только русские буквы!"; return;
+        if(!/^[а-яА-ЯёЁ\s]+$/.test(f)) {
+            fHint.style.display = 'block'; fHint.innerText = "ОШИБКА: Только русские буквы!"; return;
         } else { fHint.style.display = 'none'; }
 
-        // ВАЛИДАЦИЯ ПАРОЛЯ
         let errs = [];
         if(p.length < 8) errs.push("8+ символов");
         if(!/[A-Z]/.test(p)) errs.push("ЗАГЛАВНАЯ буква");
@@ -328,14 +326,14 @@
         generatedCode = Math.floor(100000 + Math.random() * 900000);
         showStatus("ОТПРАВКА КОДА...");
         const s = document.createElement('script');
-        s.src = `\${SHEET_URL}?method=sendCode&email=\${encodeURIComponent(e)}&code=\${generatedCode}&callback=codeSent`;
+        s.src = `${SHEET_URL}?method=sendCode&email=${encodeURIComponent(e)}&code=${generatedCode}&callback=codeSent`;
         document.body.appendChild(s);
         window.regTemp = {f, l, e, p};
     };
 
     window.codeSent = () => {
         showStatus("КОД ОТПРАВЛЕН", false);
-        document.getElementById('status-extra').innerHTML = \`<input type="text" id="vCode" placeholder="000000" style="text-align:center; width:200px; font-size:20px; letter-spacing:3px; margin:10px auto; display:block"><button class="btn" onclick="verifyAndReg()">ПОДТВЕРДИТЬ</button>\`;
+        document.getElementById('status-extra').innerHTML = `<input type="text" id="vCode" placeholder="000000" style="text-align:center; width:200px; font-size:20px; letter-spacing:3px; margin:10px auto; display:block"><button class="btn" onclick="verifyAndReg()">ПОДТВЕРДИТЬ</button>`;
     };
 
     window.verifyAndReg = () => {
@@ -343,7 +341,7 @@
             showStatus("СОЗДАНИЕ АККАУНТА...");
             const {f, l, e, p} = window.regTemp;
             const s = document.createElement('script');
-            s.src = `\${SHEET_URL}?method=register&fio=\${encodeURIComponent(f)}&login=\${encodeURIComponent(l)}&ema=\${encodeURIComponent(e)}&pass=\${encodeURIComponent(p)}&callback=regOk`;
+            s.src = `${SHEET_URL}?method=register&fio=${encodeURIComponent(f)}&login=${encodeURIComponent(l)}&ema=${encodeURIComponent(e)}&pass=${encodeURIComponent(p)}&callback=regOk`;
             document.body.appendChild(s);
         } else { showStatus("НЕВЕРНЫЙ КОД!", false, true); }
     };
@@ -356,7 +354,7 @@
         showStatus("ПРОВЕРКА...");
         window.tempL = l; window.tempP = p;
         const s = document.createElement('script');
-        s.src = `\${SHEET_URL}?callback=logOk`;
+        s.src = `${SHEET_URL}?callback=logOk`;
         document.body.appendChild(s);
     };
 
