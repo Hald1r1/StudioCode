@@ -220,51 +220,8 @@
                 <div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a></div>
             </div>`);
 
-// --- ЛИЧНЫЙ КАБИНЕТ (УЛУЧШЕННЫЙ) ---
-} else if (page === 'profile') {
-    pc = wrap(`
-        <div class="content-box" style="max-width: 1000px; text-align: left;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 30px;">
-                <div>
-                    <h1 style="margin: 0; font-size: 28px;">ЛИЧНЫЙ ПРОФИЛЬ</h1>
-                    <p style="color: #666; margin: 5px 0 0;">Добро пожаловать в систему, <span style="color: var(--neon); font-weight: bold;">${user?.fio}</span></p>
-                </div>
-                <button class="btn" style="padding: 10px 25px; font-size: 12px;" onclick="logout()">ВЫЙТИ</button>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
-                
-                <!-- Карточка статуса -->
-                <div style="background: rgba(0, 119, 255, 0.05); border: 1px solid var(--neon); padding: 25px; border-radius: 20px;">
-                    <h3 style="color: var(--neon); margin-top: 0;">ВАШ СТАТУС</h3>
-                    <div style="font-size: 14px; color: #aaa;">Уровень: <b style="color: #fff;">STUDENT [PRO]</b></div>
-                    <div style="font-size: 14px; color: #aaa; margin-top: 10px;">ID Доступа: <code style="color: var(--neon);">${Math.random().toString(36).substr(2, 9).toUpperCase()}</code></div>
-                    <div style="margin-top: 20px; background: #111; height: 8px; border-radius: 10px; overflow: hidden;">
-                        <div style="width: 35%; background: var(--neon); height: 100%; box-shadow: 0 0 10px var(--neon);"></div>
-                    </div>
-                    <p style="font-size: 11px; color: #555; margin-top: 8px;">Прогресс обучения: 35%</p>
-                </div>
-
-                <!-- Блок курсов -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #222; padding: 25px; border-radius: 20px;">
-                    <h3 style="margin-top: 0;">МОИ КУРСЫ</h3>
-                    <div style="border-left: 2px solid var(--neon); padding-left: 15px; margin-bottom: 15px;">
-                        <div style="font-weight: bold; font-size: 14px;">Python Developer Pro</div>
-                        <div style="font-size: 12px; color: #666;">Модуль 3: Асинхронность</div>
-                    </div>
-                    <button class="btn" style="width: 100%; margin: 10px 0 0; font-size: 11px; padding: 10px;" onclick="navigate('services')">ПРОДОЛЖИТЬ ОБУЧЕНИЕ</button>
-                </div>
-
-            </div>
-
-            <!-- Секция уведомлений или ресурсов -->
-            <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.01); border-radius: 15px; border: 1px dashed #333;">
-                <h4 style="margin: 0 0 10px; font-size: 14px; color: var(--neon);">🔔 УВЕДОМЛЕНИЯ</h4>
-                <p style="margin: 0; font-size: 12px; color: #888;">• Доступ к закрытому репозиторию GitHub открыт.<br>• Следующий созвон с ментором: Завтра в 19:00.</p>
-            </div>
-        </div>
-    `);
-}
+        // --- ЛИЧНЫЙ КАБИНЕТ (УЛУЧШЕННЫЙ) ---
+            pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p>Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
 
         // --- ОФОРМЛЕНИЕ ЗАКАЗА ---
         } else if (page === 'order') {
