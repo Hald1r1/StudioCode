@@ -6,6 +6,7 @@
     <title>Code Studio «РЕКОРД»</title>
     <link rel="icon" href="image.png" type="image/png">
 
+    <!-- ВНЕШНИЙ ВИД (CSS) -->
     <style>
         :root {
             --neon: #0077ff; 
@@ -73,10 +74,13 @@
         .status-card { background: var(--card-bg); border: 2px solid var(--neon); border-radius: 20px; padding: 40px 50px; text-align: center; box-shadow: 0 0 50px var(--neon-glow); max-width: 90%; }
         .loader { margin-top: 25px; width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .pass-hint { color: #ff4444; font-size: 11px; text-align: left; margin-top: -5px; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
+<!-- МОДАЛЬНОЕ ОКНО СТАТУСА -->
 <div id="status-overlay">
     <div class="status-card">
         <div id="status-text"></div>
@@ -92,6 +96,7 @@
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzFIi_kNeOM3GByJ8hsTKRtTelHn28JgiKI6KE0CZ-JSewCD94rKvlF0-smt35MPutN9Q/exec';
     let generatedCode = null;
 
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ИНТЕРФЕЙСА
     function showStatus(text, showLoader = true, showClose = false) {
         document.getElementById('status-overlay').style.display = 'flex';
         document.getElementById('status-text').innerText = text;
@@ -125,6 +130,7 @@
         navigate('order', {item: name, price: price});
     };
 
+    // ГЛАВНЫЙ РОУТИНГ (ОТРИСОВКА СТРАНИЦ)
     function render() {
         const urlParams = new URLSearchParams(window.location.search);
         const page = urlParams.get('page');
@@ -135,6 +141,7 @@
         let pc = "";
         const wrap = (content) => `<div class="sub-page"><div class="animate-page">${content}</div></div>`;
 
+        // СТРАНИЦА КУРСОВ
         if (page === 'services') {
             pc = wrap(`<h1>ПРОГРАММЫ ОБУЧЕНИЯ</h1>
                 <div class="course-grid-3">
@@ -157,6 +164,8 @@
                         <button class="btn" style="margin-top:20px; width:100%">ВЫБРАТЬ</button>
                     </div>
                 </div>`);
+        
+        // СТРАНИЦА О НАС
         } else if (page === 'about') {
             pc = wrap(`<div class="content-box">
                 <h1>О СТУДИИ «РЕКОРД»</h1>
@@ -167,6 +176,8 @@
                     <div style="background: rgba(255,255,255,0.03); border-top: 3px solid var(--neon); padding: 30px; border-radius: 15px; text-align: left;"><h3>ЭЛИТНОЕ КОМЬЮНИТИ</h3><p style="color:#888; font-size:14px">Доступ в закрытый чат с инсайдами индустрии.</p></div>
                 </div>
             </div>`);
+
+        // КОНТАКТЫ
         } else if (page === 'contacts') {
             pc = wrap(`<div class="content-box" style="max-width:600px">
                 <h1>СВЯЗЬ</h1>
@@ -176,21 +187,34 @@
                     <button class="btn" style="width:100%; margin:10px 0" onclick="showStatus('СООБЩЕНИЕ ОТПРАВЛЕНО!', false, true)">ОТПРАВИТЬ</button>
                 </div>
             </div>`);
+
+        // РЕГИСТРАЦИЯ
         } else if (page === 'register') {
             pc = wrap(`<div class="form-container"><h1>РЕГИСТРАЦИЯ</h1>
-                <input type="text" id="rFio" placeholder="Полное ФИО"><input type="text" id="rLog" placeholder="Логин"><input type="email" id="rEma" placeholder="Email"><input type="password" id="rPas" placeholder="Пароль">
+                <input type="text" id="rFio" placeholder="Полное ФИО">
+                <input type="text" id="rLog" placeholder="Логин">
+                <input type="email" id="rEma" placeholder="Email">
+                <input type="password" id="rPas" placeholder="Пароль">
+                <div id="passHint" class="pass-hint"></div>
                 <button class="btn" style="width:100%; margin-left:0" onclick="startRegistration()">ОТПРАВИТЬ КОД</button>
                 <div class="form-footer">Уже есть аккаунт? <a onclick="navigate('login')">Войти</a></div>
             </div>`);
+
+        // ВХОД
         } else if (page === 'login') {
             pc = wrap(`<div class="form-container"><h1>ВХОД</h1>
-                <input type="text" id="lLog" placeholder="Ваш логин"><input type="password" id="lPas" placeholder="Пароль">
+                <input type="text" id="lLog" placeholder="Ваш логин">
+                <input type="password" id="lPas" placeholder="Пароль">
                 <div style="text-align:right; margin:-5px 0 15px;"><a onclick="showStatus('Для восстановления напишите в Telegram: @HaLdjr', false, true)" style="color:var(--neon); cursor:pointer; font-size:12px;">Забыли пароль?</a></div>
                 <button class="btn" style="width:100%; margin-left:0" onclick="login()">ВОЙТИ</button>
                 <div class="form-footer">Нет аккаунта? <a onclick="navigate('register')">Зарегистрируйтесь</a></div>
             </div>`);
+
+        // ПРОФИЛЬ
         } else if (page === 'profile') {
             pc = wrap(`<div class="content-box"><h1>КАБИНЕТ</h1><p>Привет, <span style="color:var(--neon)">${user?.fio}</span>!</p><button class="btn" onclick="logout()">ВЫЙТИ</button></div>`);
+
+        // ОФОРМЛЕНИЕ ЗАКАЗА
         } else if (page === 'order') {
             const item = urlParams.get('item'), price = urlParams.get('price');
             pc = wrap(`<div class="content-box" style="max-width: 650px">
@@ -222,13 +246,14 @@
                     <div id="qr-area" style="display:none; margin-top:30px; text-align:center;">
                         <div style="background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 0 20px var(--neon-glow);">
                             <img src="qr.png" width="196" height="196" style="display:block; margin: 0 auto;">
-
                             <p style="color:#000; font-size:12px; margin-top:10px; font-weight:bold; font-family:sans-serif;">СКАНИРУЙТЕ ДЛЯ ОПЛАТЫ</p>
                         </div>
                         <button class="btn" style="width:100%; margin-top:20px" onclick="processPayment()">Я ОПЛАТИЛ</button>
                     </div>
                 </div>
             </div>`);
+
+        // ГЛАВНАЯ СТРАНИЦА
         } else {
             pc = wrap(`<div class="content-box">
                 <h1>CODE STUDIO «РЕКОРД»</h1>
@@ -236,7 +261,7 @@
                 <div class="info-stats">
                     <div class="stat-square"><span>500+</span><p>Студентов</p></div>
                     <div class="stat-square"><span>24/7</span><p>Менторство</p></div>
-                    <div class="stat-square"><span>94%</span><p>Офферов</p></div>
+                    <div class="stat-square)<span>94%</span><p>Офферов</p></div>
                     <div class="stat-square"><span>TOP</span><p>Уровень PRO</p></div>
                 </div>
                 <div class="roadmap">
@@ -250,14 +275,45 @@
         }
         contentDiv.innerHTML = nav + pc;
     }
-
+    // ФУНКЦИИ ОПЛАТЫ
     window.showSbpQr = () => {
         document.getElementById('qr-area').style.display = 'block';
     };
 
+    window.processPayment = () => { 
+        showStatus("ОБРАБОТКА..."); 
+        setTimeout(() => { 
+            showStatus("ОПЛАЧЕНО!", false); 
+            setTimeout(() => { hideStatus(); navigate('profile'); }, 2000); 
+        }, 1500); 
+    };
+
+    // ЛОГИКА РЕГИСТРАЦИИ И ВХОДА
     window.startRegistration = function() {
-        const f = document.getElementById('rFio').value, l = document.getElementById('rLog').value, e = document.getElementById('rEma').value, p = document.getElementById('rPas').value;
+        const f = document.getElementById('rFio').value, 
+              l = document.getElementById('rLog').value, 
+              e = document.getElementById('rEma').value, 
+              p = document.getElementById('rPas').value,
+              hint = document.getElementById('passHint');
+        
         if(!f || !l || !e || !p) return showStatus("ЗАПОЛНИТЕ ВСЕ ПОЛЯ!", false, true);
+
+        // ВАЛИДАЦИЯ ПАРОЛЯ
+        let errors = [];
+        if (p.length < 8) errors.push("минимум 8 цифр/символов");
+        if (!/[A-Z]/.test(p)) errors.push("заглавная буква (A-Z)");
+        if (!/[a-z]/.test(p)) errors.push("строчная буква (a-z)");
+        if (!/[0-9]/.test(p)) errors.push("цифра");
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(p)) errors.push("спецсимвол (!@#...)");
+
+        if (errors.length > 0) {
+            hint.style.display = 'block';
+            hint.innerText = "Нужно: " + errors.join(", ");
+            return;
+        } else {
+            hint.style.display = 'none';
+        }
+
         generatedCode = Math.floor(100000 + Math.random() * 900000);
         showStatus("ОТПРАВКА КОДА...");
         const s = document.createElement('script');
@@ -283,7 +339,10 @@
         } else { showStatus("НЕВЕРНЫЙ КОД!", false, true); }
     };
 
-    window.regOk = () => { showStatus("ГОТОВО!", false); setTimeout(() => { hideStatus(); navigate('login'); }, 1500); };
+    window.regOk = () => { 
+        showStatus("ГОТОВО!", false); 
+        setTimeout(() => { hideStatus(); navigate('login'); }, 1500); 
+    };
 
     window.login = function() {
         const l = document.getElementById('lLog').value, p = document.getElementById('lPas').value;
@@ -297,12 +356,20 @@
 
     window.logOk = (users) => {
         const u = users.find(x => String(x.login) === window.tempL && String(x.pass) === window.tempP);
-        if(u) { sessionStorage.setItem('currentUser', JSON.stringify(u)); showStatus("УСПЕШНО!", false); setTimeout(() => { hideStatus(); navigate('profile'); }, 1000); }
-        else { showStatus("ОШИБКА ДАННЫХ", false, true); }
+        if(u) { 
+            sessionStorage.setItem('currentUser', JSON.stringify(u)); 
+            showStatus("УСПЕШНО!", false); 
+            setTimeout(() => { hideStatus(); navigate('profile'); }, 1000); 
+        } else { 
+            showStatus("ОШИБКА ДАННЫХ", false, true); 
+        }
     };
 
-    window.processPayment = () => { showStatus("ОБРАБОТКА..."); setTimeout(() => { showStatus("ОПЛАЧЕНО!", false); setTimeout(() => { hideStatus(); navigate('profile'); }, 2000); }, 1500); };
-    window.logout = () => { sessionStorage.removeItem('currentUser'); navigate('home'); };
+    window.logout = () => { 
+        sessionStorage.removeItem('currentUser'); 
+        navigate('home'); 
+    };
+
     window.onpopstate = render;
     render();
 </script>
