@@ -92,7 +92,8 @@
 
 <script>
     // Твоя ссылка на базу данных Google
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycby2aMqwqxNVv3PR44XiYjNMFH_Y2q_SuZCxvwwvaLFWI4Colao50QG-4aUcmvRTYdydoA/exec';
+    const _u = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5MmFNcXdxeE5WdjNQUjQ0WGlZak5NRkhfWTJxX1N1WkN4dnd3dmFMRldJNENvbGFvNTBRRy00YVVjbXZSVFlkeWRvQS9leGVj';
+    const SHEET_URL = atob(_u);
     let generatedCode = null;
 
     // Вспомогательные функции интерфейса
